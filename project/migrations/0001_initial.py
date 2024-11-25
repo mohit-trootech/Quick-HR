@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="EmailTemplate",
+            name="Project",
             fields=[
                 (
                     "id",
@@ -34,6 +34,11 @@ class Migration(migrations.Migration):
                     django_extensions.db.fields.ModificationDateTimeField(
                         auto_now=True, verbose_name="modified"
                     ),
+                ),
+                ("title", models.CharField(max_length=255, verbose_name="title")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="description"),
                 ),
                 (
                     "status",
@@ -59,23 +64,63 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("subject", models.CharField(max_length=255, verbose_name="subject")),
-                ("body", models.TextField(verbose_name="body")),
-                ("template", models.TextField(blank=True, null=True)),
-                ("is_html", models.BooleanField(blank=True, null=True)),
+            ],
+            options={
+                "get_latest_by": "modified",
+                "abstract": False,
+            },
+        ),
+        migrations.CreateModel(
+            name="Task",
+            fields=[
                 (
-                    "email_type",
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("title", models.CharField(max_length=255, verbose_name="title")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="description"),
+                ),
+                (
+                    "status",
                     models.CharField(
-                        blank=True,
                         choices=[
-                            ("verify_email", "Verify Email"),
-                            ("registered", "Registered Successfully"),
-                            ("pnr_details", "PNR Details"),
-                            ("password_reset_done", "Password Reset Done"),
-                            ("password_reset", "Password Reset"),
+                            ("open", "Open"),
+                            ("progress", "Progress"),
+                            ("complete", "Complete"),
                         ],
-                        max_length=50,
-                        null=True,
+                        default="open",
+                        max_length=16,
+                    ),
+                ),
+                (
+                    "priority",
+                    models.CharField(
+                        choices=[
+                            ("high", "High"),
+                            ("medium", "Medium"),
+                            ("low", "Low"),
+                        ],
+                        default="low",
+                        max_length=16,
                     ),
                 ),
             ],

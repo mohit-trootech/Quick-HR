@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="EmailTemplate",
+            name="Review",
             fields=[
                 (
                     "id",
@@ -59,25 +59,52 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("subject", models.CharField(max_length=255, verbose_name="subject")),
-                ("body", models.TextField(verbose_name="body")),
-                ("template", models.TextField(blank=True, null=True)),
-                ("is_html", models.BooleanField(blank=True, null=True)),
+                ("month", models.DateField()),
                 (
-                    "email_type",
-                    models.CharField(
+                    "performance_rating",
+                    models.IntegerField(
                         blank=True,
                         choices=[
-                            ("verify_email", "Verify Email"),
-                            ("registered", "Registered Successfully"),
-                            ("pnr_details", "PNR Details"),
-                            ("password_reset_done", "Password Reset Done"),
-                            ("password_reset", "Password Reset"),
+                            (1, "Poor"),
+                            (2, "Below Average"),
+                            (3, "Average"),
+                            (4, "Good"),
+                            (5, "Excellent"),
                         ],
-                        max_length=50,
                         null=True,
                     ),
                 ),
+                ("performance_comment", models.TextField(blank=True, null=True)),
+                (
+                    "delivery_rating",
+                    models.IntegerField(
+                        blank=True,
+                        choices=[
+                            (1, "Poor"),
+                            (2, "Below Average"),
+                            (3, "Average"),
+                            (4, "Good"),
+                            (5, "Excellent"),
+                        ],
+                        null=True,
+                    ),
+                ),
+                ("delivery_comment", models.TextField(blank=True, null=True)),
+                (
+                    "socialization_rating",
+                    models.IntegerField(
+                        blank=True,
+                        choices=[
+                            (1, "Poor"),
+                            (2, "Below Average"),
+                            (3, "Average"),
+                            (4, "Good"),
+                            (5, "Excellent"),
+                        ],
+                        null=True,
+                    ),
+                ),
+                ("socialization_comment", models.TextField(blank=True, null=True)),
             ],
             options={
                 "get_latest_by": "modified",
