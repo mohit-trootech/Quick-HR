@@ -3,6 +3,7 @@ from os.path import join
 from utils.constants import Settings, EmailConfig, CeleryConfig
 from dj_database_url import parse
 from django.utils.timezone import timedelta
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # -------------------------------------------------
@@ -18,19 +19,28 @@ SECRET_KEY = Settings.SECRET_KEY
 
 # Basic Django Installed Apps
 # -------------------------------------------------
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "pnr",
-    "quickpnr",
-    "users",
-    "corsheaders",
 ]
+
+PROJECT_APPS = ["users.apps.UsersConfig", "quick_hr"]
+
+# Third Party Apps
+# -------------------------------------------------
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "django_extensions",
+    "corsheaders",
+    "email_validator",
+]
+
+INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
+
 
 # Middlewares
 # -------------------------------------------------
@@ -168,9 +178,9 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True
 CELERY_BEAT_SCHEDULE = {
-    "draw_winners": {
-        "task": "rewards.tasks.draw_winners",
-        "schedule": 300.0,
+    "soft_delete_pnr_details": {
+        "task": "quick_hr.tasks.flush_pnr",
+        "schedule": crontab(minute=00, hour=8),
     },
 }
 

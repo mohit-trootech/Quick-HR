@@ -3,7 +3,7 @@
 from django.contrib import admin
 from utils.utils import get_model
 
-EmailTemplate = get_model("quickpnr", "EmailTemplate")
+EmailTemplate = get_model("quick_hr", "EmailTemplate")
 
 
 @admin.register(EmailTemplate)
