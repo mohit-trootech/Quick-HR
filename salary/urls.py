@@ -1,1 +1,4 @@
-app_name = "leave"
+from salary.api.urls import urlpatterns
+
+app_name = "salary"
+urlpatterns = urlpatterns

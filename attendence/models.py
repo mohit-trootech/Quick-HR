@@ -4,7 +4,7 @@ from django.utils.timezone import now
 from attendence.constants import VerboseNames
 
 
-def attendence_data(self):
+def attendence_data():
     return now().date()
 
 
@@ -20,4 +20,6 @@ class Attendence(TimeStampedModel):
         ordering = ["-date"]
 
     def __str__(self):
-        return f"{self.user} - {self.date}"
+        return "{user}'s Attendence {date}".format(
+            user=self.user.username.title(), date=self.date
+        )
