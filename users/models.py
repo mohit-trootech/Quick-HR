@@ -8,18 +8,12 @@ from users.constants import (
 )
 from django.utils.html import format_html
 from django_extensions.db.models import TimeStampedModel
-from users.constants import VerboseNames
+from users.constants import VerboseNames, Choices
 
 
 def _upload_to(self, filename):
     """Upload User Profile Image"""
     return "users/{id}/{filename}".format(id=self.id, filename=filename)
-
-
-def _random_otp(self):
-    import random
-
-    return random.randint(100000, 999999)
 
 
 class User(AbstractUser):
@@ -39,13 +33,6 @@ class User(AbstractUser):
     )
     age = models.IntegerField(verbose_name=VerboseNames.AGE, blank=True, null=True)
     address = models.TextField(verbose_name=VerboseNames.ADDRESS, blank=True, null=True)
-    google_id = models.CharField(
-        blank=True,
-        null=True,
-        verbose_name=VerboseNames.GOOGLE_ID,
-        unique=True,
-        max_length=255,
-    )
 
     @property
     def profile_image(self):
@@ -54,24 +41,20 @@ class User(AbstractUser):
             return format_html(THUMBNAIL_PREVIEW_TAG.format(img=self.image.url))
         return format_html(THUMBNAIL_PREVIEW_HTML)
 
-    def __str__(self):
-        return self.username
-
     def get_absolute_url(self):
         return reverse_lazy("user:details", kwargs={"username": self.username})
 
+    def __str__(self):
+        return self.username
 
-class Otp(TimeStampedModel):
-    """OTP Models to Store OTP Details"""
 
-    otp = models.IntegerField(default=_random_otp)
-    expiry = models.DateTimeField()
-    user = models.OneToOneField(
-        "users.User", on_delete=models.CASCADE, related_name="otp"
-    )
+class Employee(TimeStampedModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="employee")
+    company = models.CharField(max_length=255, choices=Choices.COMPANY_CHOICES)
+    department = models.CharField(max_length=255)
+    designation = models.CharField(max_length=255, choices=Choices.DESGINATION_CHOICES)
+    joining_date = models.DateField()
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return "{user}'s OTP".format(user=self.user.username)
-
-    def save(self, *args, **kwargs):
-        return super(Otp, self).save(*args, **kwargs)
+        return "{user}'s Employee's details".format(user=self.user)

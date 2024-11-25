@@ -3,15 +3,15 @@ from os.path import join
 from utils.constants import Settings, EmailConfig, CeleryConfig
 from dj_database_url import parse
 from django.utils.timezone import timedelta
-from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # -------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Auth User Model
 AUTH_USER_MODEL = Settings.AUTH_USER_MODEL
 APPEND_SLASH = True
+
+admins = (("Mohit Prajapat", """mohit.prajapat@trootech.com"""),)
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # -------------------------------------------------
@@ -28,7 +28,17 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-PROJECT_APPS = ["users.apps.UsersConfig", "quick_hr"]
+PROJECT_APPS = [
+    "attendence.apps.AttendenceConfig",
+    "device.apps.DeviceConfig",
+    "leave.apps.LeaveConfig",
+    "overtime.apps.OvertimeConfig",
+    "project.apps.ProjectConfig",
+    "review.apps.ReviewConfig",
+    "salary.apps.SalaryConfig",
+    "users.apps.UsersConfig",
+    "quick_hr",
+]
 
 # Third Party Apps
 # -------------------------------------------------
@@ -177,12 +187,12 @@ CELERY_RESULT_BACKEND = "redis"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_EXTENDED = True
-CELERY_BEAT_SCHEDULE = {
-    "soft_delete_pnr_details": {
-        "task": "quick_hr.tasks.flush_pnr",
-        "schedule": crontab(minute=00, hour=8),
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     "soft_delete_pnr_details": {
+#         "task": "quick_hr.tasks.flush_pnr",
+#         "schedule": crontab(minute=00, hour=8),
+#     },
+# }
 
 # Logging Configuration
 

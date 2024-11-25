@@ -3,9 +3,6 @@ from utils.utils import get_model
 from django.contrib.auth.admin import UserAdmin
 
 User = get_model("users", "User")
-Otp = get_model("users", "Otp")
-
-admin.site.register(Otp)
 
 
 @admin.register(User)
@@ -15,45 +12,57 @@ class UserAdmin(UserAdmin):
         "email",
         "first_name",
         "last_name",
+        "is_staff",
+        "is_active",
+        "is_superuser",
+        "is_verified",
         "age",
         "address",
+        "profile_image",
     )
-    readonly_fields = ("id", "last_login", "date_joined", "profile_image", "google_id")
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    list_filter = (
+        "is_staff",
+        "is_superuser",
+        "is_active",
+        "is_verified",
+        "last_login",
+        "date_joined",
+    )
+    readonly_fields = ("last_login", "date_joined", "profile_image")
+
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (
+            "Personal info",
+            {"fields": ("first_name", "last_name", "email", "age", "address")},
+        ),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                ),
+            },
+        ),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
+        ("Profile Image", {"fields": ("image", "profile_image")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "password1", "password2"),
+            },
+        ),
+    )
     search_fields = ("username", "first_name", "last_name", "email")
     ordering = ("username",)
     filter_horizontal = (
         "groups",
         "user_permissions",
     )
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": ["id", "google_id"],
-            },
-        ),
-        (
-            "Personal Details",
-            {
-                "fields": ("username", "email", "password", "first_name", "last_name"),
-            },
-        ),
-        (
-            "User Details",
-            {
-                "fields": ("age", "address"),
-            },
-        ),
-        ("Important Dates", {"fields": ("last_login", "date_joined")}),
-        ("Groups", {"fields": ("groups", "user_permissions")}),
-        (
-            "Permissions",
-            {"fields": ("is_active", "is_staff", "is_verified", "is_superuser")},
-        ),
-        (
-            "Profile Image",
-            {"fields": ("profile_image", "image")},
-        ),
-    )
-    filter_horizontal = ("groups", "user_permissions")

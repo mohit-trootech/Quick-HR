@@ -9,8 +9,8 @@ class ModelFields:
     INACTIVE_STATUS = 0
     ACTIVE_STATUS = 1
     STATUS_CHOICES = (
-        (INACTIVE_STATUS, "Unverified"),
-        (ACTIVE_STATUS, "Verified"),
+        (INACTIVE_STATUS, _("Unverified")),
+        (ACTIVE_STATUS, _("Verified")),
     )
 
 
@@ -49,9 +49,6 @@ class AuthConstantsMessages:
     """Auth Constants Messages"""
 
     INVALID_EMAIL_OR_PASSWORD = _("Invalid email or password")
-    OTP_EXPIRED = _("OTP expired, please generate a new OTP.")
-    INVALID_OTP = _("Invalid OTP, please try again")
-    OTP_NOT_FOUND = _("OTP not found generate a new one..")
     USER_ALREADY_EXIST = _("User already exists with this email")
     PASSWORD_DOES_NOT_MATCH = _("Password does not match")
     NEW_PASSWORD_SAME_AS_OLD_PASSWORD = _("New password cannot be same as old password")
@@ -61,11 +58,8 @@ class AuthConstantsMessages:
 class ResponseMessages:
     """Users Messages Constants"""
 
-    OTP_GENERATED = _("OTP generated successfully")
-    FAILED_TO_GENERATE_OTP = _("Failed to generate OTP, {err}")
     EMAIL_VERIFIED = _("Email verified successfully")
     PASSWORD_CHANGED_DONE = _("Password changed successfully")
-    PASSWORD_RESET_OTP_GENERATED = _("Password reset OTP generated successfully")
     PASSWORD_RESET_DONE = _("Password reset successfully")
     USER_NOT_FOUND = _("User not found")
 
@@ -79,3 +73,33 @@ class VerboseNames:
     AGE = _("Age")
     ADDRESS = _("Address")
     GOOGLE_ID = _("Google ID")
+
+    # Company Model
+
+    COMPANY = "company"
+
+
+class Choices:
+    """User App Models Choices"""
+
+    # Company Choices
+    QUICKTECH = "quicktech"
+    QUICKXOM = "quickxom"
+    QUICKBOUND = "quickbound"
+    COMPANY_CHOICES = (
+        (QUICKTECH, _("Quicktech")),
+        (QUICKXOM, _("Quickxom")),
+        (QUICKBOUND, _("Quickbound")),
+    )
+
+    # Designation Choices
+    JUNIOR = "junior"
+    EXPERIENCED = "experienced"
+    SENIOR = "senior"
+    MANAGER = "manager"
+    DESGINATION_CHOICES = (
+        (JUNIOR, _("Junior")),
+        (EXPERIENCED, _("Experienced")),
+        (SENIOR, _("Senior")),
+        (MANAGER, _("Manager")),
+    )

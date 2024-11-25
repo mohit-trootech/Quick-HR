@@ -5,7 +5,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("accounts/", include("users.urls")),
+    path("accounts/", include("users.urls", namespace="users")),
+    path("api/attendence/", include("attendence.urls", namespace="attendence")),
+    path("api/devices/", include("device.urls", namespace="device")),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(
     settings.STATIC_URL, document_root=settings.STATIC_ROOT
