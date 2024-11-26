@@ -9,11 +9,35 @@ from users.constants import (
 from django.utils.html import format_html
 from django_extensions.db.models import TimeStampedModel
 from users.constants import VerboseNames, Choices
+from django.utils.timezone import timedelta
 
 
 def _upload_to(self, filename):
     """Upload User Profile Image"""
     return "users/{id}/{filename}".format(id=self.id, filename=filename)
+
+
+def _generate_otp():
+    """Generate Unique Secret Otp"""
+    import random
+    from string import digits
+
+    def generate_otp():
+        return "".join(random.choices(digits, k=6))
+
+    return generate_otp()
+
+
+class Otp(TimeStampedModel):
+    otp = models.CharField(max_length=6, default=_generate_otp)
+    user = models.OneToOneField("users.User", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"OTP for {self.user.username}"
+
+    @property
+    def expirytime(self):
+        return self.created + timedelta(minutes=5)
 
 
 class User(AbstractUser):

@@ -2,13 +2,15 @@
 
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from utils.utils import get_model
+from utils.utils import get_model, generate_random_password
 from django_extensions.db.models import ActivatorModel
 from utils.constants import EmailTemplates
 from logging import Logger
 
 logger = Logger(__name__)
 EmailTemplate = get_model("quick_hr", "EmailTemplate")
+Otp = get_model("users", "Otp")
+User = get_model("users", "User")
 
 
 class EmailService:
@@ -23,6 +25,18 @@ class EmailService:
             )
         except EmailTemplate.DoesNotExist:
             return None
+
+    @staticmethod
+    def get_user_otp(user):
+        """Generate OTP for the user"""
+        try:
+            otp = Otp.objects.get(user=user.id)
+            otp.delete()
+        except User.DoesNotExist:
+            pass
+        finally:
+            otp = Otp.objects.create(user=user)
+            return otp
 
     @staticmethod
     def send_mail(
@@ -49,6 +63,35 @@ class EmailService:
         return self.send_mail(
             template.subject,
             template.body.format(username=user.username),
+            template.is_html,
+            [user.email],
+            template.template,
+        )
+
+    def forgot_password_otp(self, user):
+        """
+        Sends a Forgot Password OTP to the specified user.
+        """
+        template = self.get_template(email_type=EmailTemplates.PASSWORD_RESET)
+        return self.send_mail(
+            template.subject,
+            template.body.format(
+                otp=self.get_user_otp(user).otp, username=user.username
+            ),
+            template.is_html,
+            [user.email],
+            template.template,
+        )
+
+    def send_credentails(self, user):
+        """Send Credentials to the user"""
+        template = self.get_template(email_type=EmailTemplates.PASSWORD_RESET_DONE)
+        password = generate_random_password()
+        user.set_password(password)
+        user.save()
+        return self.send_mail(
+            template.subject,
+            template.body.format(username=user.username, password=password),
             template.is_html,
             [user.email],
             template.template,

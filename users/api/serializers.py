@@ -7,9 +7,12 @@ from users.constants import UserRegistrationMessages, AuthConstantsMessages
 from django.contrib.auth import authenticate
 from email_validator import validate_email as email_validation
 from email_validator import EmailNotValidError
+from django.utils.timezone import now
+from django.core.exceptions import ObjectDoesNotExist
 
 
 User = get_model("users", "User")
+Otp = get_model("users", "Otp")
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -94,3 +97,46 @@ class UserSerializer(serializers.ModelSerializer):
             "last_login",
             "date_joined",
         ]
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, email):
+        """Validate Email"""
+        try:
+            User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError([AuthConstantsMessages.USE_NOT_FOUND])
+        return super().validate(email)
+
+
+class OtpVerificationSerializer(serializers.Serializer):
+    otp = serializers.CharField()
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        try:
+            user = User.objects.get(email=attrs.get("email"))
+            if user.otp.otp != attrs["otp"]:
+                """Check if OTP is Validated"""
+                raise serializers.ValidationError(
+                    {"otp": [AuthConstantsMessages.INVALID_OTP]}
+                )
+            if user.otp.expirytime < now():
+                """If Expiry Date if Smaller Than Current Datetime Means OTP is Expired Hence Raise OTP Expiry Validation Error"""
+                raise serializers.ValidationError(
+                    {"otp": [AuthConstantsMessages.EXPIRED_OTP]}
+                )
+            return attrs
+        except ObjectDoesNotExist as err:
+            raise serializers.ValidationError({"non_fields_error": [str(err)]})
+
+    def validate_email(self, email):
+        """Validate Email"""
+        try:
+            User.objects.get(email=email)
+            return email
+        except get_model("users", "User").DoesNotExist:
+            raise serializers.ValidationError(["Invalid Email"])
