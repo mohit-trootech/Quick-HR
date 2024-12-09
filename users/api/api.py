@@ -13,6 +13,7 @@ from rest_framework.generics import CreateAPIView
 from users.tasks import forgot_password_otp, send_credentials
 from users.constants import AuthConstantsMessages
 
+
 User = get_model("users", "User")
 
 

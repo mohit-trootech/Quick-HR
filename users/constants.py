@@ -59,6 +59,7 @@ class AuthConstantsMessages:
     INVALID_OTP = _("Invalid OTP")
     EXPIRED_OTP = _("OTP has expired")
     CREDENTIALS_SEND_ON_MAIL = _("Your credentials has been send on your mail")
+    REFRESH_TOKEN_IS_REQUIRED = _("Refresh token is required")
 
 
 class ResponseMessages:

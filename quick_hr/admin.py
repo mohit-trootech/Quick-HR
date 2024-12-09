@@ -4,6 +4,7 @@ from django.contrib import admin
 from utils.utils import get_model
 
 EmailTemplate = get_model("quick_hr", "EmailTemplate")
+BroadCast = get_model("quick_hr", "BroadCast")
 
 
 @admin.register(EmailTemplate)
@@ -43,3 +44,16 @@ class EmailTemplateAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+
+@admin.register(BroadCast)
+class BroadCastAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "status",
+        "created",
+        "modified",
+    )
+    list_filter = ("status",)
+    search_fields = ("title", "description")
+    readonly_fields = ("created", "modified")

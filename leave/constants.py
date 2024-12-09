@@ -8,6 +8,8 @@ class VerboseNames:
 
     LEAVE = _("Leave")
     LEAVE_PLURAL = _("Leaves")
+    AVAILABLE_LEAVE = _("Available Leave")
+    AVAILABLE_LEAVES = _("Available Leaves")
 
 
 class Choices:

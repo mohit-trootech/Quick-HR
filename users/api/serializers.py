@@ -81,9 +81,19 @@ class LoginSerializer(serializers.Serializer):
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):
+class BriefUserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = [
+            "id",
+            "username",
+            "get_full_name",
+            "image",
+        ]
+
+
+class UserSerializer(BriefUserDetailSerializer):
+    class Meta(BriefUserDetailSerializer.Meta):
         fields = [
             "id",
             "username",
