@@ -3,6 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from users.api.serializers import BriefUserDetailSerializer
 
 BroadCast = get_model(app_name="quick_hr", model_name="BroadCast")
+Holiday = get_model(app_name="quick_hr", model_name="Holiday")
 
 
 class BroadCastSerializer(ModelSerializer):
@@ -17,4 +18,11 @@ class BroadCastSerializer(ModelSerializer):
             "user",
             "created_ago",
         ]
+        read_only_fields = ["id"]
+
+
+class HolidaySerializer(ModelSerializer):
+    class Meta:
+        model = Holiday
+        fields = ["id", "title", "description", "starts_from", "ends_on", "no_of_days"]
         read_only_fields = ["id"]

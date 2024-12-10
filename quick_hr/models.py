@@ -47,3 +47,20 @@ class BroadCast(TitleDescriptionModel, TimeStampedModel, ActivatorModel):
     @property
     def created_ago(self):
         return timesince(self.created)
+
+
+class Holiday(TimeStampedModel, TitleDescriptionModel):
+    starts_from = models.DateField(verbose_name=_("Starts From"))
+    ends_on = models.DateField(verbose_name=_("Ends On"))
+
+    class Meta:
+        verbose_name = _("Holiday")
+        verbose_name_plural = _("Holidays")
+        ordering = ["-created"]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def no_of_days(self):
+        return (self.ends_on - self.starts_from).days + 1
