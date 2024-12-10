@@ -7,16 +7,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    initial = True
-
     dependencies = [
-        ("project", "0001_initial"),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ("users", "0001_initial"),
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name="user",
+            name="designation",
+        ),
         migrations.CreateModel(
-            name="Overtime",
+            name="Employee",
             fields=[
                 (
                     "id",
@@ -39,45 +40,47 @@ class Migration(migrations.Migration):
                         auto_now=True, verbose_name="modified"
                     ),
                 ),
-                ("title", models.CharField(max_length=255, verbose_name="title")),
                 (
-                    "description",
-                    models.TextField(blank=True, null=True, verbose_name="description"),
-                ),
-                ("start_time", models.DateTimeField(verbose_name="Start Time")),
-                ("end_time", models.DateTimeField(verbose_name="End Time")),
-                (
-                    "status",
+                    "company",
                     models.CharField(
                         choices=[
-                            ("pending", "Pending"),
-                            ("approved", "Approved"),
-                            ("rejected", "Rejected"),
+                            ("quicktech", "Quicktech"),
+                            ("quickxom", "Quickxom"),
+                            ("quickbound", "Quickbound"),
                         ],
-                        default="pending",
-                        max_length=10,
+                        max_length=255,
                     ),
                 ),
+                ("department", models.CharField(max_length=255)),
                 (
-                    "project",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="overtimes",
-                        to="project.project",
+                    "designation",
+                    models.CharField(
+                        choices=[
+                            ("junior", "Junior"),
+                            ("experienced", "Experienced"),
+                            ("senior", "Senior"),
+                            ("manager", "Manager"),
+                        ],
+                        max_length=255,
                     ),
                 ),
+                ("joining_date", models.DateField()),
+                ("salary", models.DecimalField(decimal_places=2, max_digits=10)),
                 (
                     "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="overtimes",
+                        related_name="employee",
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "verbose_name": "Overtime",
-                "verbose_name_plural": "Overtimes",
+                "get_latest_by": "modified",
+                "abstract": False,
             },
+        ),
+        migrations.DeleteModel(
+            name="Hr",
         ),
     ]

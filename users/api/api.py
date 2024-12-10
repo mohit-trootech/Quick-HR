@@ -5,9 +5,14 @@ from users.api.serializers import (
     RegistrationSerializer,
     LoginSerializer,
     UserSerializer,
+    ForgotPasswordSerializer,
+    OtpVerificationSerializer,
 )
 from utils.utils import AuthService
 from rest_framework.generics import CreateAPIView
+from users.tasks import forgot_password_otp, send_credentials
+from users.constants import AuthConstantsMessages
+
 
 User = get_model("users", "User")
 
@@ -22,6 +27,9 @@ class RegistrationApiView(CreateAPIView):
         """Register New User"""
         instance = super().create(request, *args, **kwargs)
         return instance
+
+
+register_view = RegistrationApiView.as_view()
 
 
 class LoginApiView(views.APIView):
@@ -39,6 +47,9 @@ class LoginApiView(views.APIView):
             AuthService().get_auth_tokens_for_user(serializer.validated_data),
             status=status.HTTP_200_OK,
         )
+
+
+login_view = LoginApiView.as_view()
 
 
 class UserProfileView(views.APIView):
@@ -63,3 +74,64 @@ class UserProfileView(views.APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+profile_view = UserProfileView.as_view()
+
+
+class ForgotPasswordView(views.APIView):
+    """Forgot Password API View"""
+
+    permission_classes = [permissions.AllowAny]
+    serializer_class = ForgotPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        """Forgot Password"""
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = User.objects.get(email=serializer.validated_data.get("email"))
+            forgot_password_otp.delay(user.id)
+        except User.DoesNotExist:
+            return Response(
+                {"message": AuthConstantsMessages.USE_NOT_FOUND},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(
+            {"message": AuthConstantsMessages.EMAIL_VERIFIED_OTP_DELIVERED},
+            status=status.HTTP_200_OK,
+        )
+
+
+forgot_password = ForgotPasswordView.as_view()
+
+
+class OtpVerificationView(views.APIView):
+    """OTP Verification API View"""
+
+    serializer_class = OtpVerificationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Verify User Otp"""
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        send_credentials.delay(serializer.validated_data.get("email"))
+        return Response({"message": AuthConstantsMessages.CREDENTIALS_SEND_ON_MAIL})
+
+
+otp_verification = OtpVerificationView.as_view()
+
+
+class UserPermissionsView(views.APIView):
+    """Current Logged In User Permissions"""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """Return User Permissions"""
+        permissions = request.user.get_all_permissions()
+        return Response({"permissions": permissions})
+
+
+user_permissions_view = UserPermissionsView.as_view()

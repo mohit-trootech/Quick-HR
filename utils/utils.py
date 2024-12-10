@@ -1,6 +1,13 @@
 """Utilities Functions for PNR Scrapping"""
 
 from rest_framework_simplejwt.tokens import RefreshToken
+from faker import Faker
+
+
+def generate_random_password():
+    """ "Generate Random Password"""
+    fake = Faker()
+    return fake.password()
 
 
 def get_model(app_name, model_name):

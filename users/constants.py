@@ -53,6 +53,13 @@ class AuthConstantsMessages:
     PASSWORD_DOES_NOT_MATCH = _("Password does not match")
     NEW_PASSWORD_SAME_AS_OLD_PASSWORD = _("New password cannot be same as old password")
     INVALID_PASSWORD = _("Invalid password")
+    EMAIL_REQUIRED = _("Email is required")
+    EMAIL_VERIFIED_OTP_DELIVERED = _("OTP delivered to your email address")
+    USE_NOT_FOUND = _("User not found")
+    INVALID_OTP = _("Invalid OTP")
+    EXPIRED_OTP = _("OTP has expired")
+    CREDENTIALS_SEND_ON_MAIL = _("Your credentials has been send on your mail")
+    REFRESH_TOKEN_IS_REQUIRED = _("Refresh token is required")
 
 
 class ResponseMessages:

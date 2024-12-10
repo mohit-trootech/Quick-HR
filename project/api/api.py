@@ -9,8 +9,12 @@ Task = get_model(app_name="project", model_name="Task")
 class ProjectViewSet(ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    filterset_fields = ["status"]
+    search_fields = ["title", "description"]
 
 
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    filterset_fields = ["status", "priority", "assigned_user", "project"]
+    search_fields = ["title", "description"]
