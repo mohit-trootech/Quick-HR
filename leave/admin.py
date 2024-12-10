@@ -28,7 +28,6 @@ class AvaialableLeaveAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "emergency_leaves",
-        "available_leaves",
         "encashment_leaves",
         "pending_leaves",
         "created",

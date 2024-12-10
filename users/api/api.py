@@ -121,3 +121,17 @@ class OtpVerificationView(views.APIView):
 
 
 otp_verification = OtpVerificationView.as_view()
+
+
+class UserPermissionsView(views.APIView):
+    """Current Logged In User Permissions"""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """Return User Permissions"""
+        permissions = request.user.get_all_permissions()
+        return Response({"permissions": permissions})
+
+
+user_permissions_view = UserPermissionsView.as_view()

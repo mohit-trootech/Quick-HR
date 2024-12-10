@@ -10,7 +10,6 @@ class AvailableLeave(TimeStampedModel):
     emergency_leaves = models.IntegerField(default=0)
     casual_leaves = models.IntegerField(default=0)
     encashment_leaves = models.IntegerField(default=0)
-    available_leaves = models.IntegerField(default=5)
 
     class Meta:
         verbose_name = VerboseNames.AVAILABLE_LEAVE
@@ -45,6 +44,7 @@ class Leave(TimeStampedModel, TitleDescriptionModel):
     class Meta:
         verbose_name = VerboseNames.LEAVE
         verbose_name_plural = VerboseNames.LEAVE_PLURAL
+        ordering = ["-created"]
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"

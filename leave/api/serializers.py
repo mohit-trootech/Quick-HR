@@ -1,6 +1,6 @@
 from utils.utils import get_model
 from utils.serailizers import DynamicFieldsBaseSerializer, RelatedUserSerializer
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, CurrentUserDefault
 
 Leave = get_model(app_name="leave", model_name="Leave")
 AvailableLeave = get_model(app_name="leave", model_name="AvailableLeave")
@@ -15,14 +15,13 @@ class AvailableLeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "modified",
             "emergency_leaves",
             "casual_leaves",
-            "available_leaves",
             "encashment_leaves",
             "pending_leaves",
         ]
 
 
-class LeaveSerializer(DynamicFieldsBaseSerializer):
-    user = RelatedUserSerializer(read_only=True)
+class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
+    user = RelatedUserSerializer(default=CurrentUserDefault())
 
     class Meta:
         model = Leave
