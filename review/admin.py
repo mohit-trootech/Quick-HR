@@ -8,15 +8,18 @@ Review = get_model(app_name="review", model_name="Review")
 @register(Review)
 class ReviewAdmin(ModelAdmin):
     list_display = (
-        "month",
+        "created",
         "reviewer",
         "reviewee",
         "performance_rating",
         "delivery_rating",
         "socialization_rating",
-        "created",
+        "performance_comment",
+        "delivery_comment",
+        "socialization_comment",
+        "modified",
     )
-    list_filter = ("month", "reviewer", "reviewee", "created")
+    list_filter = ("reviewer", "reviewee", "created")
     search_fields = ("reviewer__username", "reviewee__username")
-    readonly_fields = ("created", "modified")
+    readonly_fields = ("modified",)
     ordering = ("-created",)

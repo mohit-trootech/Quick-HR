@@ -36,6 +36,8 @@ class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "leave_type",
             "created",
             "modified",
+            "leave_duration",
+            "duration",
         )
         read_only_fields = ("id", "created", "modified")
         depth = True

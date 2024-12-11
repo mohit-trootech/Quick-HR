@@ -1,4 +1,4 @@
-from rest_framework import permissions, views, status
+from rest_framework import permissions, views, status, mixins, viewsets
 from rest_framework.response import Response
 from utils.utils import get_model
 from users.api.serializers import (
@@ -7,6 +7,7 @@ from users.api.serializers import (
     UserSerializer,
     ForgotPasswordSerializer,
     OtpVerificationSerializer,
+    BriefUserDetailSerializer,
 )
 from utils.utils import AuthService
 from rest_framework.generics import CreateAPIView
@@ -135,3 +136,16 @@ class UserPermissionsView(views.APIView):
 
 
 user_permissions_view = UserPermissionsView.as_view()
+
+
+class UserList(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = BriefUserDetailSerializer
+    queryset = User.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    search_fields = ["username", "first_name", "last_name", "email"]
+
+    def get_queryset(self):
+        return self.queryset.filter(is_active=True)
+
+
+user_list = UserList.as_view({"get": "list"})
