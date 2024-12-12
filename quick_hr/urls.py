@@ -2,12 +2,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from quick_hr.api.urls import router as api_router
+from quick_hr.api.urls import router
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("users.urls", namespace="users")),
-    path("api/", include(api_router.urls)),
+    path("api/", include(router.urls)),
+    path("api/organizations/", include("organization.urls", namespace="organization")),
     path("api/attendence/", include("attendence.urls", namespace="attendence")),
     path("api/devices/", include("device.urls", namespace="device")),
     path("api/leaves/", include("leave.urls", namespace="leave")),

@@ -61,6 +61,27 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class OrganizationRegisterSerializer(RegistrationSerializer):
+    class Meta(RegistrationSerializer.Meta):
+        fields = [
+            "id",
+            "username",
+            "password",
+            "email",
+            "first_name",
+            "last_name",
+            "confirm_password",
+            "organization_head",
+        ]
+        extra_kwargs = {
+            "password": {"write_only": True, "validators": [password_strength]},
+        }
+
+    def create(self, validated_data):
+        validated_data["organization_head"] = True
+        return super().create(validated_data)
+
+
 class LoginSerializer(serializers.Serializer):
     """User Login Serializer"""
 
@@ -81,6 +102,27 @@ class LoginSerializer(serializers.Serializer):
         return user
 
 
+class OrganizationLoginSerializer(LoginSerializer):
+    """Organization Login Serializer"""
+
+    def validate(self, attrs):
+        """Validate User Credentials"""
+        login_data = {
+            "password": attrs.get("password"),
+            "username": attrs.get("username"),
+        }
+        user = authenticate(**login_data)
+        if not user:
+            raise serializers.ValidationError(
+                {"non_field_errors": [AuthConstantsMessages.INVALID_EMAIL_OR_PASSWORD]}
+            )
+        if not user.organization_head:
+            raise serializers.ValidationError(
+                {"non_field_errors": ["You are not authorized to access this page"]}
+            )
+        return user
+
+
 class BriefUserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -92,7 +134,18 @@ class BriefUserDetailSerializer(serializers.ModelSerializer):
         ]
 
 
-class UserSerializer(BriefUserDetailSerializer):
+class LoggedInUserSerializer(BriefUserDetailSerializer):
+    class Meta(BriefUserDetailSerializer.Meta):
+        fields = [
+            "id",
+            "username",
+            "get_full_name",
+            "image",
+            "organization_head",
+        ]
+
+
+class DetailedUserSerializer(BriefUserDetailSerializer):
     class Meta(BriefUserDetailSerializer.Meta):
         fields = [
             "id",

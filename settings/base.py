@@ -30,6 +30,7 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     "attendence.apps.AttendenceConfig",
+    "organization.apps.OrganizationConfig",
     "device.apps.DeviceConfig",
     "leave.apps.LeaveConfig",
     "overtime.apps.OvertimeConfig",

@@ -4,10 +4,13 @@ from utils.utils import get_model
 from users.api.serializers import (
     RegistrationSerializer,
     LoginSerializer,
-    UserSerializer,
+    DetailedUserSerializer,
     ForgotPasswordSerializer,
     OtpVerificationSerializer,
     BriefUserDetailSerializer,
+    OrganizationRegisterSerializer,
+    OrganizationLoginSerializer,
+    LoggedInUserSerializer,
 )
 from utils.utils import AuthService
 from rest_framework.generics import CreateAPIView
@@ -23,11 +26,6 @@ class RegistrationApiView(CreateAPIView):
 
     serializer_class = RegistrationSerializer
     permission_classes = [permissions.AllowAny]
-
-    def create(self, request, *args, **kwargs):
-        """Register New User"""
-        instance = super().create(request, *args, **kwargs)
-        return instance
 
 
 register_view = RegistrationApiView.as_view()
@@ -54,7 +52,7 @@ login_view = LoginApiView.as_view()
 
 
 class UserProfileView(views.APIView):
-    serializer_class = UserSerializer
+    serializer_class = DetailedUserSerializer
     queryset = User.objects.filter(is_active=True)
     permission_classes = [permissions.IsAuthenticated]
 
@@ -149,3 +147,29 @@ class UserList(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 user_list = UserList.as_view({"get": "list"})
+
+
+class OrganizationRegisterView(RegistrationApiView):
+    serializer_class = OrganizationRegisterSerializer
+
+
+organization_register_view = OrganizationRegisterView.as_view()
+
+
+class OrganizationLoginView(LoginApiView):
+    serializer_class = OrganizationLoginSerializer
+
+
+organization_login_view = OrganizationLoginView.as_view()
+
+
+class LoggedInUserView(views.APIView):
+    serializer_class = LoggedInUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+logged_in_user_view = LoggedInUserView.as_view()

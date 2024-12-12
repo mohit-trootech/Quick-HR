@@ -16,9 +16,7 @@ class UserAdmin(UserAdmin):
         "is_active",
         "is_superuser",
         "is_verified",
-        "age",
-        "address",
-        "profile_image",
+        "organization_head",
     )
     list_filter = (
         "is_staff",
@@ -27,6 +25,7 @@ class UserAdmin(UserAdmin):
         "is_verified",
         "last_login",
         "date_joined",
+        "organization_head",
     )
     readonly_fields = ("last_login", "date_joined", "profile_image")
 
@@ -45,6 +44,8 @@ class UserAdmin(UserAdmin):
                     "is_superuser",
                     "groups",
                     "user_permissions",
+                    "organization_head",
+                    "is_verified",
                 ),
             },
         ),
