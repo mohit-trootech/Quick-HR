@@ -15,7 +15,6 @@ class VerboseNames:
 class Choices:
     """App: Model Choices"""
 
-    TERRIBLE = 0
     POOR = 1
     BELOW_AVERAGE = 2
     AVERAGE = 3
@@ -23,7 +22,6 @@ class Choices:
     EXCELLENT = 5
 
     RATING_CHOICES = (
-        (TERRIBLE, _("Terrible")),
         (POOR, _("Poor")),
         (BELOW_AVERAGE, _("Below Average")),
         (AVERAGE, _("Average")),

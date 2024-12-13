@@ -58,6 +58,13 @@ class User(AbstractUser):
     age = models.IntegerField(verbose_name=VerboseNames.AGE, blank=True, null=True)
     address = models.TextField(verbose_name=VerboseNames.ADDRESS, blank=True, null=True)
     organization_head = models.BooleanField(default=False)
+    organization = models.ForeignKey(
+        "organization.Organization",
+        on_delete=models.CASCADE,
+        related_name="users",
+        blank=True,
+        null=True,
+    )
 
     @property
     def profile_image(self):

@@ -8,9 +8,8 @@ def _upload_organization_logo(self, filename):
 class Organization(models.Model):
     name = models.CharField(max_length=255)
     logo = models.ImageField(upload_to=_upload_organization_logo, blank=True, null=True)
-    users = models.ManyToManyField("users.User", related_name="organizations")
     admin = models.OneToOneField(
-        "users.User", on_delete=models.CASCADE, related_name="organization"
+        "users.User", on_delete=models.CASCADE, related_name="organization_admin"
     )
 
     def __str__(self):

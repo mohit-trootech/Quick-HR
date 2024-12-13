@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from users.api.serializers import BriefUserDetailSerializer
 from utils.serailizers import DynamicFieldsBaseSerializer
 from utils.utils import get_model
 
@@ -32,3 +33,10 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     def users_count(self, obj):
         return obj.users.count()
+
+
+class OrganizationUsersSerializer(OrganizationSerializer):
+    users = BriefUserDetailSerializer(many=True, read_only=True)
+
+    class Meta(OrganizationSerializer.Meta):
+        fields = ["id", "users"]

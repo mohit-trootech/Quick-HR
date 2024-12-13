@@ -10,7 +10,6 @@ Customization = get_model(app_name="organization", model_name="Customization")
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
-    filter_horizontal = ("users",)
 
 
 @admin.register(Customization)
