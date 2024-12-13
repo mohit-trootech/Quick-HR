@@ -1,9 +1,7 @@
-from django.urls import path, include
-from rest_framework.routers import SimpleRouter
-from organization.api.api import OrganizationView
+from django.urls import path
+from organization.api.api import customization_view, organization_view
 
-router = SimpleRouter()
-router.register("", OrganizationView, basename="organization")
 urlpatterns = [
-    path("", include(router.urls)),
+    path("orgnizations/<str:admin>/", organization_view),
+    path("customization/<int:pk>/", customization_view),
 ]

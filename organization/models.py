@@ -1,5 +1,4 @@
 from django.db import models
-from users.models import User
 
 
 def _upload_organization_logo(self, filename):
@@ -9,7 +8,10 @@ def _upload_organization_logo(self, filename):
 class Organization(models.Model):
     name = models.CharField(max_length=255)
     logo = models.ImageField(upload_to=_upload_organization_logo, blank=True, null=True)
-    users = models.ManyToManyField(User, related_name="organizations")
+    users = models.ManyToManyField("users.User", related_name="organizations")
+    admin = models.OneToOneField(
+        "users.User", on_delete=models.CASCADE, related_name="organization"
+    )
 
     def __str__(self):
         return self.name
