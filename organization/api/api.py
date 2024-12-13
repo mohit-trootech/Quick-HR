@@ -8,6 +8,7 @@ from utils.utils import get_model
 
 Organization = get_model(app_name="organization", model_name="Organization")
 Customization = get_model(app_name="organization", model_name="Customization")
+User = get_model(app_name="users", model_name="User")
 
 
 class OrganizationView(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIView):
@@ -35,8 +36,8 @@ customization_view = CustomizationView.as_view()
 
 class OrganizationUsersView(generics.ListCreateAPIView):
     serializer_class = OrganizationUsersSerializer
-    queryset = Organization.objects.all()
-    search_fields = ("users__username",)
+    queryset = User.objects.all()
+    search_fields = ("username",)
 
 
 organization_users_view = OrganizationUsersView.as_view()

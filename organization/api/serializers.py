@@ -5,6 +5,7 @@ from utils.utils import get_model
 
 Organization = get_model(app_name="organization", model_name="Organization")
 Customization = get_model(app_name="organization", model_name="Customization")
+User = get_model(app_name="users", model_name="User")
 
 
 class CustomizationSerializer(ModelSerializer):
@@ -39,8 +40,12 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         return super().create(validated_data)
 
 
-class OrganizationUsersSerializer(OrganizationSerializer):
-    users = BriefUserDetailSerializer(many=True, read_only=True)
+class OrganizationUsersSerializer(BriefUserDetailSerializer):
+    class Meta(BriefUserDetailSerializer.Meta):
+        fields = BriefUserDetailSerializer.Meta.fields + ["organization"]
 
-    class Meta(OrganizationSerializer.Meta):
-        fields = ["id", "users"]
+
+class OrganizationUserCreateSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
