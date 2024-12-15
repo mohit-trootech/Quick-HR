@@ -13,7 +13,6 @@ class ReviewSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         model = Review
         fields = (
             "id",
-            "month",
             "reviewer",
             "reviewee",
             "performance_rating",
@@ -24,6 +23,19 @@ class ReviewSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "socialization_comment",
             "created",
             "modified",
+            "overall_review",
             "status",
         )
-        read_only_fields = ("id", "month", "reviewer", "reviewee", "status")
+        read_only_fields = (
+            "id",
+            "created",
+            "modified",
+            "overall_review",
+            "reviewer",
+            "reviewee",
+            "status",
+        )
+
+    def create(self, validated_data):
+        validated_data["reviewer"] = self.context["request"].user
+        return super().create(validated_data)

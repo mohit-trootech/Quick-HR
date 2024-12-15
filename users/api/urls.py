@@ -7,14 +7,15 @@ from users.api.api import (
     forgot_password,
     otp_verification,
     user_permissions_view,
+    user_list,
 )
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
 router = SimpleRouter()
-
 urlpatterns = [
     path("", include(router.urls)),
+    path("user-list/", user_list, name="user-list"),
     path("register/", register_view, name="register"),
     path("login/", login_view, name="login"),
     path("forgot-password/", forgot_password, name="forgot-password"),

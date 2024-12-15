@@ -48,3 +48,7 @@ class Leave(TimeStampedModel, TitleDescriptionModel):
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
+
+    @property
+    def leave_duration(self):
+        return (self.end_date - self.start_date).days + 1
