@@ -34,6 +34,10 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     def users_count(self, obj):
         return obj.users.count()
 
+    def create(self, validated_data):
+        validated_data["admin"] = self.context["request"].user
+        return super().create(validated_data)
+
 
 class OrganizationUsersSerializer(OrganizationSerializer):
     users = BriefUserDetailSerializer(many=True, read_only=True)

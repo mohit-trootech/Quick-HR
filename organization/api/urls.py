@@ -6,7 +6,7 @@ from organization.api.api import (
 )
 
 urlpatterns = [
-    path("orgnizations/<str:admin>/", organization_view),
+    path("organizations/<str:admin>/", organization_view),
     path("customization/<int:pk>/", customization_view),
     path("organization-users/", organization_users_view),
 ]
