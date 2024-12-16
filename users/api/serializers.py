@@ -9,7 +9,7 @@ from email_validator import validate_email as email_validation
 from email_validator import EmailNotValidError
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
-
+from utils.serailizers import RelatedUserSerializer
 
 User = get_model("users", "User")
 Otp = get_model("users", "Otp")
@@ -123,30 +123,20 @@ class OrganizationLoginSerializer(LoginSerializer):
         return user
 
 
-class BriefUserDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "get_full_name",
-            "image",
-        ]
-
-
-class LoggedInUserSerializer(BriefUserDetailSerializer):
-    class Meta(BriefUserDetailSerializer.Meta):
+class LoggedInUserSerializer(RelatedUserSerializer):
+    class Meta(RelatedUserSerializer.Meta):
         fields = [
             "id",
             "username",
             "get_full_name",
             "image",
             "organization_head",
+            "organization",
         ]
 
 
-class DetailedUserSerializer(BriefUserDetailSerializer):
-    class Meta(BriefUserDetailSerializer.Meta):
+class DetailedUserSerializer(RelatedUserSerializer):
+    class Meta(RelatedUserSerializer.Meta):
         fields = [
             "id",
             "username",

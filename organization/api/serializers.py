@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from users.api.serializers import BriefUserDetailSerializer
+from utils.serailizers import RelatedUserSerializer
 from utils.serailizers import DynamicFieldsBaseSerializer
 from utils.utils import get_model
 
@@ -38,18 +38,15 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     def create(self, validated_data):
         validated_data["admin"] = self.context["request"].user
-        return super().create(validated_data)
+        instance = super().create(validated_data)
+        self.context["request"].user.organization = instance
+        self.context["request"].user.save(update_fields=["organization"])
+        return instance
 
 
-class OrganizationUsersSerializer(BriefUserDetailSerializer):
-    class Meta(BriefUserDetailSerializer.Meta):
-        fields = BriefUserDetailSerializer.Meta.fields + ["organization"]
-
-
-class OrganizationUserCreateSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "username", "email", "organization"]
+class OrganizationUsersSerializer(RelatedUserSerializer):
+    class Meta(RelatedUserSerializer.Meta):
+        fields = RelatedUserSerializer.Meta.fields + ["organization"]
 
     def create(self, validated_data):
         validated_data["organization"] = self.context["request"].user.organization

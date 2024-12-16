@@ -5,8 +5,6 @@ from users.api.api import (
     login_view,
     forgot_password,
     otp_verification,
-    user_permissions_view,
-    user_list,
     organization_register_view,
     organization_login_view,
     logged_in_user_view,
@@ -19,7 +17,6 @@ router = SimpleRouter()
 router.register("profile", UserProfileView, basename="profile")
 urlpatterns = [
     path("", include(router.urls)),
-    path("user-list/", user_list, name="user-list"),
     path("register/", register_view, name="register"),
     path(
         "organization-register/",
@@ -31,5 +28,4 @@ urlpatterns = [
     path("organization-login/", organization_login_view, name="organization-login"),
     path("forgot-password/", forgot_password, name="forgot-password"),
     path("otp-verification/", otp_verification, name="otp-verification"),
-    path("user-permissions", user_permissions_view, name="user-permissions"),
 ]

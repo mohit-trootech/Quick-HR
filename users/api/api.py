@@ -1,4 +1,12 @@
-from rest_framework import permissions, views, status, mixins, viewsets
+from rest_framework import permissions, status
+from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
+from rest_framework.mixins import (
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+)
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from utils.utils import get_model
 from users.api.serializers import (
@@ -7,13 +15,11 @@ from users.api.serializers import (
     DetailedUserSerializer,
     ForgotPasswordSerializer,
     OtpVerificationSerializer,
-    BriefUserDetailSerializer,
     OrganizationRegisterSerializer,
     OrganizationLoginSerializer,
     LoggedInUserSerializer,
 )
 from utils.utils import AuthService
-from rest_framework.generics import CreateAPIView
 from users.tasks import forgot_password_otp, send_credentials
 from users.constants import AuthConstantsMessages
 
@@ -31,7 +37,7 @@ class RegistrationApiView(CreateAPIView):
 register_view = RegistrationApiView.as_view()
 
 
-class LoginApiView(views.APIView):
+class LoginApiView(APIView):
     """User Login API View"""
 
     serializer_class = LoginSerializer
@@ -52,17 +58,16 @@ login_view = LoginApiView.as_view()
 
 
 class UserProfileView(
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+    GenericViewSet,
 ):
     serializer_class = DetailedUserSerializer
     queryset = User.objects.filter(is_active=True)
-    permission_classes = [permissions.IsAuthenticated]
 
 
-class ForgotPasswordView(views.APIView):
+class ForgotPasswordView(APIView):
     """Forgot Password API View"""
 
     permission_classes = [permissions.AllowAny]
@@ -89,7 +94,7 @@ class ForgotPasswordView(views.APIView):
 forgot_password = ForgotPasswordView.as_view()
 
 
-class OtpVerificationView(views.APIView):
+class OtpVerificationView(APIView):
     """OTP Verification API View"""
 
     serializer_class = OtpVerificationSerializer
@@ -106,33 +111,6 @@ class OtpVerificationView(views.APIView):
 otp_verification = OtpVerificationView.as_view()
 
 
-class UserPermissionsView(views.APIView):
-    """Current Logged In User Permissions"""
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        """Return User Permissions"""
-        permissions = request.user.get_all_permissions()
-        return Response({"permissions": permissions})
-
-
-user_permissions_view = UserPermissionsView.as_view()
-
-
-class UserList(mixins.ListModelMixin, viewsets.GenericViewSet):
-    serializer_class = BriefUserDetailSerializer
-    queryset = User.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
-    search_fields = ["username", "first_name", "last_name", "email"]
-
-    def get_queryset(self):
-        return self.queryset.filter(is_active=True)
-
-
-user_list = UserList.as_view({"get": "list"})
-
-
 class OrganizationRegisterView(RegistrationApiView):
     serializer_class = OrganizationRegisterSerializer
 
@@ -147,13 +125,12 @@ class OrganizationLoginView(LoginApiView):
 organization_login_view = OrganizationLoginView.as_view()
 
 
-class LoggedInUserView(views.APIView):
+class AuthUserView(APIView):
     serializer_class = LoggedInUserSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-logged_in_user_view = LoggedInUserView.as_view()
+logged_in_user_view = AuthUserView.as_view()

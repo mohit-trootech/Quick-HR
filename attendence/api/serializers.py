@@ -12,4 +12,4 @@ class AttendenceSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         model = Attendence
         fields = ("id", "user", "date", "created", "modified")
         read_only_fields = ("created", "modified")
-        depth = 1
+        depth = True

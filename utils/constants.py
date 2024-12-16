@@ -3,6 +3,7 @@ from django.utils.translation import gettext_noop as _
 from os import path, getcwd
 
 env = dotenv_values(".env")
+PASSWORD_LENGTH = 13
 
 
 # Settings Constants

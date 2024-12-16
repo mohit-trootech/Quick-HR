@@ -1,13 +1,13 @@
 from utils.utils import get_model
 from rest_framework.serializers import ModelSerializer
-from users.api.serializers import BriefUserDetailSerializer
+from users.api.serializers import RelatedUserSerializer
 
 BroadCast = get_model(app_name="quick_hr", model_name="BroadCast")
 Holiday = get_model(app_name="quick_hr", model_name="Holiday")
 
 
 class BroadCastSerializer(ModelSerializer):
-    user = BriefUserDetailSerializer(read_only=True)
+    user = RelatedUserSerializer(read_only=True)
 
     class Meta:
         model = BroadCast
