@@ -27,10 +27,10 @@ class UserAdmin(UserAdmin):
         "date_joined",
         "organization_head",
     )
-    readonly_fields = ("last_login", "date_joined", "profile_image")
+    readonly_fields = ("id", "last_login", "date_joined", "profile_image")
 
     fieldsets = (
-        (None, {"fields": ("username", "password")}),
+        (None, {"fields": ("id", "username", "password")}),
         (
             "Personal info",
             {
