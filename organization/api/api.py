@@ -17,8 +17,6 @@ class OrganizationView(ModelViewSet):
     queryset = Organization.objects.all()
     search_fields = ("name",)
     filter_fields = ("name",)
-    lookup_field = "admin__username"
-    lookup_url_kwarg = "admin"
 
 
 class CustomizationView(generics.UpdateAPIView):

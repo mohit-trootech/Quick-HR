@@ -107,15 +107,7 @@ class OrganizationLoginSerializer(LoginSerializer):
 
     def validate(self, attrs):
         """Validate User Credentials"""
-        login_data = {
-            "password": attrs.get("password"),
-            "username": attrs.get("username"),
-        }
-        user = authenticate(**login_data)
-        if not user:
-            raise serializers.ValidationError(
-                {"non_field_errors": [AuthConstantsMessages.INVALID_EMAIL_OR_PASSWORD]}
-            )
+        user = super().validate(attrs)
         if not user.organization_head:
             raise serializers.ValidationError(
                 {"non_field_errors": ["You are not authorized to access this page"]}
@@ -125,13 +117,8 @@ class OrganizationLoginSerializer(LoginSerializer):
 
 class LoggedInUserSerializer(RelatedUserSerializer):
     class Meta(RelatedUserSerializer.Meta):
-        fields = [
-            "id",
-            "username",
-            "get_full_name",
-            "image",
+        fields = RelatedUserSerializer.Meta.fields + [
             "organization_head",
-            "organization",
         ]
 
 

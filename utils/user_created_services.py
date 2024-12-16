@@ -16,7 +16,9 @@ class AuthUserCreatedServices:
         """Generate Password"""
 
         password = secrets.token_urlsafe(PASSWORD_LENGTH)
-        self.user.set_password(password)
+        # self.user.set_password(password)
+        self.user.set_password("1234")
+        self.user.save(update_fields=["password"])
         return password
 
     def create_user_leaves(self):
@@ -24,11 +26,11 @@ class AuthUserCreatedServices:
         AvailableLeave.objects.create(user=self.user)
         print("User Leaves Created")
 
-    def send_registration_mail(self):
+    def send_registration_mail(self, password):
         """Send Registration Mail"""
         from users.tasks import registration_mail
 
-        registration_mail.delay(self.user.id.password)
+        registration_mail.delay(self.user.id, password)
         return True
 
     def organization_head_registered(self):

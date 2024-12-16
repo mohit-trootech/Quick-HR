@@ -16,7 +16,7 @@ def send_registration_mail(sender, instance, created, **kwargs):
         # If Registered User is Not Organization Head
         auth_user_services.create_user_leaves()
         if not instance.organization_head:
-            auth_user_services._generate_password()
-            auth_user_services.send_registration_mail()
+            password = auth_user_services._generate_password()
+            auth_user_services.send_registration_mail(password=password)
         return True
     return False
