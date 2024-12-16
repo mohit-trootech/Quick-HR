@@ -2,6 +2,8 @@
 
 from django.utils.translation import gettext_lazy as _
 
+PASSWORD_LENGTH = 13
+
 
 class ModelFields:
     """Model Contants - Quick HR Users"""

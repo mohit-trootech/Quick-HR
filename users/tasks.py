@@ -6,10 +6,10 @@ User = get_model("users", "User")
 
 
 @shared_task
-def registration_mail(id: int):
+def registration_mail(id: int, password: str):
     """Sends a registration email to the user."""
 
-    return EmailService().registration_mail(User.objects.get(id=id))
+    return EmailService().registration_mail(User.objects.get(id=id), password)
 
 
 @shared_task

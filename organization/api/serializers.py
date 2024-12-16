@@ -30,7 +30,8 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ["id", "name", "logo", "count", "customization"]
+        fields = ["id", "name", "logo", "count", "customization", "admin"]
+        extra_kwargs = {"admin": {"read_only": True}}
 
     def users_count(self, obj):
         return obj.users.count()
@@ -48,4 +49,8 @@ class OrganizationUsersSerializer(BriefUserDetailSerializer):
 class OrganizationUserCreateSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email"]
+        fields = ["id", "username", "email", "organization"]
+
+    def create(self, validated_data):
+        validated_data["organization"] = self.context["request"].user.organization
+        return super().create(validated_data)

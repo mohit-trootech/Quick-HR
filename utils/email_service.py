@@ -57,12 +57,12 @@ class EmailService:
         logger.info(f"Email Send Successfully : Subject: {subject}")
         return f"Email Send Successfully : Subject: {subject}"
 
-    def registration_mail(self, user):
+    def registration_mail(self, user, password):
         """Sends a registration email to the specified user."""
         template = self.get_template(email_type=EmailTemplates.REGISTRED_SUCCESSFULLY)
         return self.send_mail(
             template.subject,
-            template.body.format(username=user.username),
+            template.body.format(username=user.username, password=password),
             template.is_html,
             [user.email],
             template.template,

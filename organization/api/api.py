@@ -2,7 +2,7 @@ from rest_framework import generics
 from organization.api.serializers import (
     OrganizationSerializer,
     CustomizationSerializer,
-    OrganizationUsersSerializer,
+    OrganizationUserCreateSerializer,
 )
 from utils.utils import get_model
 
@@ -35,9 +35,13 @@ customization_view = CustomizationView.as_view()
 
 
 class OrganizationUsersView(generics.ListCreateAPIView):
-    serializer_class = OrganizationUsersSerializer
+    serializer_class = OrganizationUserCreateSerializer
     queryset = User.objects.all()
     search_fields = ("username",)
+    filter_fields = ("username",)
+
+    def get_queryset(self):
+        return self.queryset.filter(organization=self.request.user.organization_admin)
 
 
 organization_users_view = OrganizationUsersView.as_view()

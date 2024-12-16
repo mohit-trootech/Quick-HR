@@ -51,31 +51,15 @@ class LoginApiView(views.APIView):
 login_view = LoginApiView.as_view()
 
 
-class UserProfileView(views.APIView):
+class UserProfileView(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = DetailedUserSerializer
     queryset = User.objects.filter(is_active=True)
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self, *args, **kwargs):
-        """Return User Object"""
-        return self.request.user
-
-    def get(self, *args, **kwargs):
-        """Return User Profile"""
-        instance = self.get_object(*args, **kwargs)
-        serializer = self.serializer_class(instance)
-        return Response(serializer.data)
-
-    def patch(self, request, *args, **kwargs):
-        """Update User Profile"""
-        instance = self.get_object()
-        serializer = self.serializer_class(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-
-profile_view = UserProfileView.as_view()
 
 
 class ForgotPasswordView(views.APIView):

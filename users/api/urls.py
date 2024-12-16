@@ -3,7 +3,6 @@
 from users.api.api import (
     register_view,
     login_view,
-    profile_view,
     forgot_password,
     otp_verification,
     user_permissions_view,
@@ -11,11 +10,13 @@ from users.api.api import (
     organization_register_view,
     organization_login_view,
     logged_in_user_view,
+    UserProfileView,
 )
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
 router = SimpleRouter()
+router.register("profile", UserProfileView, basename="profile")
 urlpatterns = [
     path("", include(router.urls)),
     path("user-list/", user_list, name="user-list"),
@@ -30,6 +31,5 @@ urlpatterns = [
     path("organization-login/", organization_login_view, name="organization-login"),
     path("forgot-password/", forgot_password, name="forgot-password"),
     path("otp-verification/", otp_verification, name="otp-verification"),
-    path("profile/", profile_view, name="profile"),
     path("user-permissions", user_permissions_view, name="user-permissions"),
 ]
