@@ -1,8 +1,10 @@
-from leave.api.api import LeaveViewSet, AvailableLeaveViewSet
+from leave.api.api import LeaveViewSet, available_leave
 from rest_framework.routers import SimpleRouter
+from django.urls import path
 
 router = SimpleRouter()
 router.register("list", LeaveViewSet, basename="leaves-taken")
-router.register("available/", AvailableLeaveViewSet, basename="available-leaves")
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path("available-leave/", available_leave),
+]

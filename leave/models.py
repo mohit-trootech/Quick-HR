@@ -4,8 +4,8 @@ from leave.constants import Choices, VerboseNames
 
 
 class AvailableLeave(TimeStampedModel):
-    user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="available_leaves"
+    user = models.OneToOneField(
+        "users.User", on_delete=models.CASCADE, related_name="available_leave"
     )
     emergency_leaves = models.IntegerField(default=0)
     casual_leaves = models.IntegerField(default=0)

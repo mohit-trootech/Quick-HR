@@ -2,6 +2,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from utils.serailizers import RelatedUserSerializer
 from utils.serailizers import DynamicFieldsBaseSerializer
 from utils.utils import get_model
+from rest_framework import serializers
 
 Organization = get_model(app_name="organization", model_name="Organization")
 Customization = get_model(app_name="organization", model_name="Customization")
@@ -22,6 +23,26 @@ class CustomizationSerializer(ModelSerializer):
             "device",
             "holiday",
         ]
+
+    def validate(self, attrs):
+        # leave, review, holiday, project are required fields
+        if (
+            not attrs.get("leave")
+            or not attrs.get("review")
+            or not attrs.get("holiday")
+        ):
+            raise serializers.ValidationError(
+                "Leave, Review, Holiday are required fields"
+            )
+        return super().validate(attrs)
+
+    def update(self, instance, validated_data):
+        # If field not in validated_data make it False
+        for field in self.fields:
+            if field not in validated_data and field != "id":
+                # check whether field should not be in validated_data & field should not be id
+                validated_data[field] = False
+        return super().update(instance, validated_data)
 
 
 class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):

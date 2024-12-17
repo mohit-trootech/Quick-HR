@@ -1,9 +1,5 @@
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.response import Response
-from rest_framework.mixins import (
-    RetrieveModelMixin,
-)
-from rest_framework.permissions import AllowAny
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import RetrieveAPIView, GenericAPIView
 from leave.api.serializers import LeaveSerializer, AvailableLeaveSerializer
 from utils.utils import get_model
 
@@ -12,17 +8,15 @@ Leave = get_model(app_name="leave", model_name="Leave")
 AvailableLeave = get_model(app_name="leave", model_name="AvailableLeave")
 
 
-class AvailableLeaveViewSet(RetrieveModelMixin, GenericViewSet):
+class AvailableLeaveViewSet(RetrieveAPIView, GenericAPIView):
     queryset = AvailableLeave.objects.all()
     serializer_class = AvailableLeaveSerializer
-    permission_classes = [AllowAny]
 
     def get_object(self):
-        return self.queryset.get(user=self.request.user)
+        return self.request.user.available_leave
 
-    def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(self.get_object())
-        return Response(serializer.data)
+
+available_leave = AvailableLeaveViewSet.as_view()
 
 
 class LeaveViewSet(ModelViewSet):
