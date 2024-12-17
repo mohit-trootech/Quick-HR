@@ -32,6 +32,7 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "assigned_users",
             "created_at",
             "deadline",
+            "tasks",
         )
         read_only_fields = ("id", "created", "modified", "created_at")
         depth = True

@@ -43,7 +43,9 @@ class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
 
 
 class Task(TimeStampedModel, TitleDescriptionModel):
-    project = models.ForeignKey("project.Project", on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        "project.Project", on_delete=models.CASCADE, related_name="tasks"
+    )
     assigned_user = models.ForeignKey(
         "users.User", on_delete=models.SET_NULL, null=True
     )
