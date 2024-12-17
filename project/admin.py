@@ -3,6 +3,7 @@ from utils.utils import get_model
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
+TimeSheet = get_model(app_name="project", model_name="TimeSheet")
 
 
 @register(Project)
@@ -12,7 +13,7 @@ class ProjectAdmin(ModelAdmin):
     search_fields = ("title", "description")
     readonly_fields = ("created", "modified")
     ordering = ("-created",)
-    filter_horizontal = ("project_manager", "team_lead", "assigned_users")
+    filter_horizontal = ("assigned_users",)
 
 
 @register(Task)
@@ -27,5 +28,14 @@ class TaskAdmin(ModelAdmin):
     )
     list_filter = ("status", "priority", "assigned_user", "project", "created")
     search_fields = ("title", "description")
+    readonly_fields = ("created", "modified")
+    ordering = ("-created",)
+
+
+@register(TimeSheet)
+class TimeSheetAdmin(ModelAdmin):
+    list_display = ("project", "task", "user", "created")
+    list_filter = ("project", "task", "user", "created")
+    search_fields = ("project", "task", "user")
     readonly_fields = ("created", "modified")
     ordering = ("-created",)

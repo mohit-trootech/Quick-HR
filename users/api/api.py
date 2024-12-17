@@ -5,6 +5,7 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
     DestroyModelMixin,
+    ListModelMixin,
 )
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
@@ -22,7 +23,7 @@ from users.api.serializers import (
 from utils.utils import AuthService
 from users.tasks import forgot_password_otp, send_credentials
 from users.constants import AuthConstantsMessages
-
+from utils.serailizers import RelatedUserSerializer
 
 User = get_model("users", "User")
 
@@ -134,3 +135,16 @@ class AuthUserView(APIView):
 
 
 logged_in_user_view = AuthUserView.as_view()
+
+
+class UserList(ListModelMixin, GenericViewSet):
+    serializer_class = RelatedUserSerializer
+    queryset = User.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    search_fields = ["username", "first_name", "last_name", "email"]
+
+    def get_queryset(self):
+        return self.queryset.filter(is_active=True)
+
+
+user_list = UserList.as_view({"get": "list"})

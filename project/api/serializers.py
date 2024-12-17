@@ -5,14 +5,17 @@ from utils.serailizers import (
     RelatedUserSerializer,
     RelatedProjectSerializer,
 )
+from django.db.utils import IntegrityError
+from rest_framework.exceptions import ValidationError
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
+TimeSheet = get_model(app_name="project", model_name="TimeSheet")
 
 
 class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
-    project_manager = RelatedUserSerializer(many=True)
-    team_lead = RelatedUserSerializer(many=True)
+    project_manager = RelatedUserSerializer()
+    team_lead = RelatedUserSerializer()
     assigned_users = RelatedUserSerializer(many=True)
 
     class Meta:
@@ -27,10 +30,11 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "project_manager",
             "team_lead",
             "assigned_users",
+            "created_at",
+            "deadline",
         )
-        read_only_fields = ("id", "created", "modified")
-
-    depth = True
+        read_only_fields = ("id", "created", "modified", "created_at")
+        depth = True
 
 
 class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
@@ -50,4 +54,36 @@ class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "created",
             "modified",
         )
-        read_only_fields = ("id", "created", "modified")
+        read_only_fields = ("created", "modified")
+
+    def create(self, validated_data):
+        try:
+            validated_data["assigned_user"] = self.context["request"].user
+            validated_data["project_id"] = self.initial_data["project"]
+            return super().create(validated_data)
+        except IntegrityError:
+            raise ValidationError({"detail": "Task already exists"})
+
+
+class TimeSheetSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
+    project = RelatedProjectSerializer(read_only=True)
+    task = RelatedProjectSerializer(read_only=True)
+    user = RelatedUserSerializer(read_only=True)
+
+    class Meta:
+        model = TimeSheet
+        fields = (
+            "id",
+            "project",
+            "task",
+            "user",
+            "created",
+            "modified",
+        )
+        read_only_fields = ("created", "modified")
+
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        validated_data["project"] = Project.objects.get(id=self.initial_data["project"])
+        validated_data["task"] = Task.objects.get(id=self.initial_data["task"])
+        return super().create(validated_data)
