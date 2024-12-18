@@ -17,10 +17,10 @@ class VerboseNames:
     TASK = _("Task")
     TASK_PLURAL = _("Tasks")
 
-    # TimeSheet
-    TIMESHEET_SINGULAR = _("Timesheet")
-    TIMESHEET_PLURAL = _("Timesheets")
-    TIMESHEET = "timesheet"
+    # Activity
+    ACTIVITY_SINGULAR = _("Activity")
+    ACTIVITY_PLURAL = _("Activities")
+    ACTIVITY = "activity"
 
 
 class Choices:
@@ -41,4 +41,14 @@ class Choices:
         (HIGH, _("High")),
         (MEDIUM, _("Medium")),
         (LOW, _("Low")),
+    )
+    TIMER_START = "start"
+    TIMER_STOP = "stop"
+    TIMER_PAUSE = "pause"
+    TIMER_RESUME = "resume"
+    TIMER = (
+        (TIMER_START, _("Start")),
+        (TIMER_STOP, _("Stop")),
+        (TIMER_PAUSE, _("Pause")),
+        (TIMER_RESUME, _("Resume")),
     )

@@ -46,9 +46,6 @@ class Task(TimeStampedModel, TitleDescriptionModel):
     project = models.ForeignKey(
         "project.Project", on_delete=models.CASCADE, related_name="tasks"
     )
-    assigned_user = models.ForeignKey(
-        "users.User", on_delete=models.SET_NULL, null=True
-    )
     status = models.CharField(
         max_length=16, choices=Choices.STATUS, default=Choices.OPEN
     )
@@ -63,18 +60,20 @@ class Task(TimeStampedModel, TitleDescriptionModel):
         return self.title
 
 
-class TimeSheet(TimeStampedModel):
+class Activity(TimeStampedModel):
     project = models.ForeignKey(
-        "project.Project", on_delete=models.CASCADE, related_name=VerboseNames.TIMESHEET
+        "project.Project", on_delete=models.CASCADE, related_name=VerboseNames.ACTIVITY
     )
     task = models.ForeignKey(
-        "project.Task", on_delete=models.CASCADE, related_name=VerboseNames.TIMESHEET
+        "project.Task", on_delete=models.CASCADE, related_name=VerboseNames.ACTIVITY
     )
     user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name=VerboseNames.TIMESHEET
+        "users.User", on_delete=models.CASCADE, related_name=VerboseNames.ACTIVITY
+    )
+    activity_type = models.CharField(
+        max_length=16, choices=Choices.TIMER, default=Choices.TIMER_START
     )
 
     class Meta:
-        verbose_name = VerboseNames.TIMESHEET_SINGULAR
-        verbose_name_plural = VerboseNames.TIMESHEET_PLURAL
-        ordering = ("-created",)
+        verbose_name = VerboseNames.ACTIVITY_SINGULAR
+        verbose_name_plural = VerboseNames.ACTIVITY_PLURAL

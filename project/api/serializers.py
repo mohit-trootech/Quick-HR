@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
-TimeSheet = get_model(app_name="project", model_name="TimeSheet")
+Activity = get_model(app_name="project", model_name="Activity")
 
 
 class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
@@ -49,7 +49,6 @@ class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "title",
             "description",
             "project",
-            "assigned_user",
             "status",
             "priority",
             "created",
@@ -66,25 +65,31 @@ class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             raise ValidationError({"detail": "Task already exists"})
 
 
-class TimeSheetSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
+class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     project = RelatedProjectSerializer(read_only=True)
     task = RelatedProjectSerializer(read_only=True)
     user = RelatedUserSerializer(read_only=True)
 
     class Meta:
-        model = TimeSheet
+        model = Activity
         fields = (
             "id",
             "project",
             "task",
             "user",
+            "activity_type",
             "created",
             "modified",
         )
         read_only_fields = ("created", "modified")
 
     def create(self, validated_data):
-        validated_data["user"] = self.context["request"].user
-        validated_data["project"] = Project.objects.get(id=self.initial_data["project"])
-        validated_data["task"] = Task.objects.get(id=self.initial_data["task"])
-        return super().create(validated_data)
+        try:
+            validated_data["user"] = self.context["request"].user
+            validated_data["project"] = Project.objects.get(
+                id=self.initial_data["project"]
+            )
+            validated_data["task"] = Task.objects.get(id=self.initial_data["task"])
+            return super().create(validated_data)
+        except IntegrityError:
+            raise ValidationError({"detail": "Activity already exists"})
