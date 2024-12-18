@@ -80,8 +80,9 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "created",
             "modified",
             "duration",
+            "created_ago",
         )
-        read_only_fields = ("created", "modified")
+        read_only_fields = ("created", "modified", "created_ago")
 
     def create(self, validated_data):
         try:

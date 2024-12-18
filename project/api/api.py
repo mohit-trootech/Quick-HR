@@ -53,15 +53,6 @@ class ActivityViewSet(ModelViewSet):
     ordering = ["-created"]
     permission_classes = []
 
-    def filter_queryset(self, queryset):
-        if self.request.user.is_authenticated:
-            return (
-                self.queryset.filter(user=self.request.user)
-                .order_by("-created")
-                .distinct()
-            )
-        return super().filter_queryset(queryset)
-
     @action(detail=False, methods=["get"])
     def last_user_activity(self, request, *args, **kwargs):
         filtered_queryset = self.filter_queryset(self.get_queryset())
@@ -71,7 +62,8 @@ class ActivityViewSet(ModelViewSet):
                     Choices.TIMER_START,
                     Choices.TIMER_PAUSE,
                     Choices.TIMER_RESUME,
-                ]
+                ],
+                user=self.request.user,
             )
             .order_by("-created")
             .first()

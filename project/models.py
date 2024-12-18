@@ -5,6 +5,7 @@ from django_extensions.db.models import (
     ActivatorModel,
 )
 from project.constants import VerboseNames, Choices
+from django.utils.timesince import timesince
 
 
 class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
@@ -37,8 +38,6 @@ class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
 
     @property
     def created_at(self):
-        from django.utils.timesince import timesince
-
         return timesince(self.created)
 
 
@@ -78,3 +77,8 @@ class Activity(TimeStampedModel):
     class Meta:
         verbose_name = VerboseNames.ACTIVITY_SINGULAR
         verbose_name_plural = VerboseNames.ACTIVITY_PLURAL
+        ordering = ["-created"]
+
+    @property
+    def created_ago(self):
+        return timesince(self.created)
