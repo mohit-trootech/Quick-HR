@@ -73,6 +73,7 @@ class Activity(TimeStampedModel):
     activity_type = models.CharField(
         max_length=16, choices=Choices.TIMER, default=Choices.TIMER_START
     )
+    duration = models.FloatField(blank=True, null=True, default=0)
 
     class Meta:
         verbose_name = VerboseNames.ACTIVITY_SINGULAR

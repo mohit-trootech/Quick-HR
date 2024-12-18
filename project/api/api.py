@@ -7,6 +7,10 @@ from project.api.serializers import (
 from utils.utils import get_model
 from django_extensions.db.models import ActivatorModel
 from project.constants import Choices
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.utils.timezone import now
+from rest_framework.status import HTTP_200_OK
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
@@ -42,9 +46,42 @@ class TaskViewSet(ModelViewSet):
 
 
 class ActivityViewSet(ModelViewSet):
-    queryset = Activity.objects.all()
+    queryset = Activity.objects.filter(created__year=now().year)
     serializer_class = ActivitySerializer
     filterset_fields = ["activity_type", "task", "user", "project"]
     search_fields = ["activity_type"]
     ordering = ["-created"]
     permission_classes = []
+
+    def filter_queryset(self, queryset):
+        if self.request.user.is_authenticated:
+            return (
+                self.queryset.filter(user=self.request.user)
+                .order_by("-created")
+                .distinct()
+            )
+        return super().filter_queryset(queryset)
+
+    @action(detail=False, methods=["get"])
+    def last_user_activity(self, request, *args, **kwargs):
+        filtered_queryset = self.filter_queryset(self.get_queryset())
+        last_activity = (
+            filtered_queryset.filter(
+                activity_type__in=[
+                    Choices.TIMER_START,
+                    Choices.TIMER_PAUSE,
+                    Choices.TIMER_RESUME,
+                ]
+            )
+            .order_by("-created")
+            .first()
+        )
+
+        if last_activity is None:
+            return Response(status=HTTP_200_OK)
+        serializer = self.get_serializer(last_activity)
+
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)

@@ -39,7 +39,6 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
 
 class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
-    assigned_user = RelatedUserSerializer(read_only=True)
     project = RelatedProjectSerializer(read_only=True)
 
     class Meta:
@@ -80,6 +79,7 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "activity_type",
             "created",
             "modified",
+            "duration",
         )
         read_only_fields = ("created", "modified")
 
