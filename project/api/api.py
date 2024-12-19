@@ -61,7 +61,7 @@ class ActivityViewSet(ModelViewSet):
                 activity_type__in=[
                     Choices.TIMER_START,
                     Choices.TIMER_PAUSE,
-                    Choices.TIMER_RESUME,
+                    Choices.TIMER_PROGRESS,
                 ],
                 user=self.request.user,
             )
@@ -74,6 +74,3 @@ class ActivityViewSet(ModelViewSet):
         serializer = self.get_serializer(last_activity)
 
         return Response(serializer.data, status=HTTP_200_OK)
-
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)

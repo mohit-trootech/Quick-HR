@@ -72,7 +72,7 @@ class Activity(TimeStampedModel):
         "users.User", on_delete=models.CASCADE, related_name=VerboseNames.ACTIVITY
     )
     activity_type = models.CharField(
-        max_length=16, choices=Choices.TIMER, default=Choices.TIMER_START
+        max_length=16, choices=Choices.TIMER, default=Choices.TIMER_PROGRESS
     )
     duration = models.FloatField(blank=True, null=True, default=0)
 

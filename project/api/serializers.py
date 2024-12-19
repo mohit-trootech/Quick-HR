@@ -8,6 +8,8 @@ from utils.serailizers import (
 )
 from django.db.utils import IntegrityError
 from rest_framework.exceptions import ValidationError
+from django.utils.timezone import now
+from project.constants import Choices
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
@@ -93,3 +95,13 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             return super().create(validated_data)
         except IntegrityError:
             raise ValidationError({"detail": "Activity already exists"})
+
+    def update(self, instance, validated_data):
+        if validated_data["activity_type"] == Choices.TIMER_PAUSE:
+            validated_data["duration"] = (now() - instance.modified).total_seconds()
+        if validated_data["activity_type"] == Choices.TIMER_START:
+            validated_data["activity_type"] = Choices.TIMER_PROGRESS
+            validated_data["duration"] = (
+                instance.duration + (now() - instance.created).total_seconds()
+            )
+        return super().update(instance, validated_data)

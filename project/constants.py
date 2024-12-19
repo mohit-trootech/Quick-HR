@@ -45,10 +45,10 @@ class Choices:
     TIMER_START = "start"
     TIMER_STOP = "stop"
     TIMER_PAUSE = "pause"
-    TIMER_RESUME = "resume"
+    TIMER_PROGRESS = "progress"
     TIMER = (
         (TIMER_START, _("Start")),
         (TIMER_STOP, _("Stop")),
         (TIMER_PAUSE, _("Pause")),
-        (TIMER_RESUME, _("Resume")),
+        (TIMER_PROGRESS, _("Progress")),
     )
