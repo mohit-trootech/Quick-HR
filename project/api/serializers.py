@@ -30,7 +30,7 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "project_manager",
             "team_lead",
             "assigned_users",
-            "created_at",
+            "created_ago",
             "deadline",
             "tasks",
         )

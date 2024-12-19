@@ -37,7 +37,7 @@ class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
         return self.title
 
     @property
-    def created_at(self):
+    def created_ago(self):
         return timesince(self.created)
 
 
