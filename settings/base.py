@@ -29,6 +29,8 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
+    "quick_hr",
+    "designation.apps.DesignationConfig",
     "attendence.apps.AttendenceConfig",
     "organization.apps.OrganizationConfig",
     "device.apps.DeviceConfig",
@@ -38,7 +40,9 @@ PROJECT_APPS = [
     "review.apps.ReviewConfig",
     "salary.apps.SalaryConfig",
     "users.apps.UsersConfig",
-    "quick_hr",
+    "resignation.apps.ResignationConfig",
+    "technology.apps.TechnologyConfig",
+    "documents.apps.DocumentsConfig",
 ]
 
 # Third Party Apps

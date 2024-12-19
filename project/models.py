@@ -6,6 +6,7 @@ from django_extensions.db.models import (
 )
 from project.constants import VerboseNames, Choices
 from django.utils.timesince import timesince
+from django_markdown_model.fields import MarkDownField
 
 
 class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
@@ -42,6 +43,7 @@ class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
 
 
 class Task(TimeStampedModel, TitleDescriptionModel):
+    description = MarkDownField(null=True, blank=True)
     project = models.ForeignKey(
         "project.Project", on_delete=models.CASCADE, related_name="tasks"
     )

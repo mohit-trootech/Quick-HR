@@ -3,6 +3,7 @@ from utils.utils import get_model
 
 User = get_model(app_name="users", model_name="User")
 Project = get_model(app_name="project", model_name="Project")
+Task = get_model(app_name="project", model_name="Task")
 
 
 class DynamicFieldsBaseSerializer(BaseSerializer):
@@ -29,4 +30,15 @@ class RelatedProjectSerializer(ModelSerializer):
             "id",
             "title",
             "status",
+        ]
+
+
+class RelatedTaskSerializer(ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "title",
+            "description",
+            "priority",
         ]

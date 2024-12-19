@@ -4,6 +4,7 @@ from utils.serailizers import (
     DynamicFieldsBaseSerializer,
     RelatedUserSerializer,
     RelatedProjectSerializer,
+    RelatedTaskSerializer,
 )
 from django.db.utils import IntegrityError
 from rest_framework.exceptions import ValidationError
@@ -38,11 +39,10 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         depth = True
 
 
-class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
+class TaskSerializer(RelatedTaskSerializer, DynamicFieldsBaseSerializer):
     project = RelatedProjectSerializer(read_only=True)
 
-    class Meta:
-        model = Task
+    class Meta(RelatedTaskSerializer.Meta):
         fields = (
             "id",
             "title",
@@ -57,7 +57,6 @@ class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     def create(self, validated_data):
         try:
-            validated_data["assigned_user"] = self.context["request"].user
             validated_data["project_id"] = self.initial_data["project"]
             return super().create(validated_data)
         except IntegrityError:
@@ -66,7 +65,7 @@ class TaskSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
 class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     project = RelatedProjectSerializer(read_only=True)
-    task = RelatedProjectSerializer(read_only=True)
+    task = RelatedTaskSerializer(read_only=True)
     user = RelatedUserSerializer(read_only=True)
 
     class Meta:
