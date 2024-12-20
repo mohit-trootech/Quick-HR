@@ -9,6 +9,7 @@ urlpatterns = [
     path("accounts/", include("users.urls", namespace="users")),
     path("api/", include(router.urls)),
     path("api/", include("designation.urls", namespace="designation")),
+    path("api/", include("resignation.urls", namespace="resignation")),
     path("api/", include("organization.urls", namespace="organization")),
     path("api/attendence/", include("attendence.urls", namespace="attendence")),
     path("api/devices/", include("device.urls", namespace="device")),

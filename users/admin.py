@@ -2,7 +2,8 @@ from django.contrib import admin
 from utils.utils import get_model
 from django.contrib.auth.admin import UserAdmin
 
-User = get_model("users", "User")
+User = get_model(app_name="users", model_name="User")
+Employee = get_model(app_name="users", model_name="Employee")
 
 
 @admin.register(User)
@@ -76,3 +77,18 @@ class UserAdmin(UserAdmin):
         "groups",
         "user_permissions",
     )
+
+
+@admin.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "company",
+        "department",
+        "designation",
+        "joining_date",
+        "salary",
+    )
+    list_filter = ("company", "department", "designation")
+    search_fields = ("user__username", "company", "department", "designation")
+    ordering = ("user",)
