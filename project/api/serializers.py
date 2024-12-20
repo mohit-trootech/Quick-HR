@@ -1,5 +1,5 @@
 from utils.utils import get_model
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from utils.serailizers import (
     DynamicFieldsBaseSerializer,
     RelatedUserSerializer,
@@ -69,6 +69,7 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     project = RelatedProjectSerializer(read_only=True)
     task = RelatedTaskSerializer(read_only=True)
     user = RelatedUserSerializer(read_only=True)
+    duration = SerializerMethodField()
 
     class Meta:
         model = Activity
@@ -85,6 +86,17 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         )
         read_only_fields = ("created", "modified", "created_ago")
 
+    def get_duration(self, obj):
+        from ast import literal_eval
+
+        if obj.activity_type == Choices.TIMER_PROGRESS:
+            return (
+                obj.duration
+                if isinstance(obj.duration, (int, float))
+                else literal_eval(obj.duration) + (now() - obj.modified).total_seconds()
+            )
+        return obj.duration
+
     def create(self, validated_data):
         try:
             validated_data["user"] = self.context["request"].user
@@ -97,11 +109,6 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             raise ValidationError({"detail": "Activity already exists"})
 
     def update(self, instance, validated_data):
-        if validated_data["activity_type"] == Choices.TIMER_PAUSE:
-            validated_data["duration"] = (now() - instance.modified).total_seconds()
-        if validated_data["activity_type"] == Choices.TIMER_START:
-            validated_data["activity_type"] = Choices.TIMER_PROGRESS
-            validated_data["duration"] = (
-                instance.duration + (now() - instance.created).total_seconds()
-            )
+        instance.duration = self.initial_data.get("duration", instance.duration)
+        instance.save(update_fields=["duration"])
         return super().update(instance, validated_data)
