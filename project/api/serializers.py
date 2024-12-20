@@ -91,7 +91,7 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
         if obj.activity_type == Choices.TIMER_PROGRESS:
             return (
-                obj.duration
+                obj.duration + (now() - obj.modified).total_seconds()
                 if isinstance(obj.duration, (int, float))
                 else literal_eval(obj.duration) + (now() - obj.modified).total_seconds()
             )
