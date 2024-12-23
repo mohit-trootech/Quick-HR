@@ -25,7 +25,8 @@ from users.tasks import forgot_password_otp, send_credentials
 from users.constants import AuthConstantsMessages
 from utils.serailizers import RelatedUserSerializer
 
-User = get_model("users", "User")
+User = get_model(app_name="users", model_name="User")
+Employee = get_model(app_name="users", model_name="Employee")
 
 
 class RegistrationApiView(CreateAPIView):
@@ -130,8 +131,14 @@ class AuthUserView(APIView):
     serializer_class = LoggedInUserSerializer
 
     def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            employee = Employee.objects.get(user=request.user)
+            serializer = self.serializer_class(employee)
+            return Response(serializer.data)
+        except Employee.DoesNotExist:
+            return Response(
+                {"message": "Employee not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
 logged_in_user_view = AuthUserView.as_view()

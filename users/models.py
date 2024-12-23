@@ -58,13 +58,6 @@ class User(AbstractUser):
     age = models.IntegerField(verbose_name=VerboseNames.AGE, blank=True, null=True)
     address = models.TextField(verbose_name=VerboseNames.ADDRESS, blank=True, null=True)
     organization_head = models.BooleanField(default=False)
-    organization = models.ForeignKey(
-        "organization.Organization",
-        on_delete=models.CASCADE,
-        related_name="users",
-        blank=True,
-        null=True,
-    )
 
     @property
     def profile_image(self):
@@ -81,12 +74,23 @@ class User(AbstractUser):
 
 
 class Employee(TimeStampedModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="employee")
-    company = models.CharField(max_length=255, choices=Choices.COMPANY_CHOICES)
-    department = models.CharField(max_length=255)
+    user = models.OneToOneField(
+        "users.User", on_delete=models.CASCADE, related_name="employee"
+    )
+    organization = models.ForeignKey(
+        "organization.Organization", on_delete=models.CASCADE, related_name="employees"
+    )
+    department = models.ForeignKey(
+        "users.Department", on_delete=models.CASCADE, related_name="employees"
+    )
     designation = models.CharField(max_length=255, choices=Choices.DESGINATION_CHOICES)
-    joining_date = models.DateField()
-    salary = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return "{user}'s Employee's details".format(user=self.user)
+
+
+class Department(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

@@ -2,7 +2,6 @@ from utils.utils import get_model
 from utils.serailizers import DynamicFieldsBaseSerializer, RelatedUserSerializer
 from rest_framework.serializers import (
     ModelSerializer,
-    CurrentUserDefault,
     ValidationError,
 )
 from leave.constants import Choices
@@ -27,7 +26,7 @@ class AvailableLeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
 
 class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
-    user = RelatedUserSerializer(default=CurrentUserDefault())
+    user = RelatedUserSerializer(read_only=True)
 
     class Meta:
         model = Leave
@@ -49,11 +48,11 @@ class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         depth = True
 
     def validate(self, attrs):
-        """Validate Leave Data"""
+        """Validate Leave Serializer Data"""
         # Check Whether start_date < end_date
         if attrs["start_date"] > attrs["end_date"]:
             raise ValidationError(
-                {"end_date": "End date must be greater than or equal to start date."}
+                {"end_date": ["End date must be greater than or equal to start date."]}
             )
         # If Leave Type != Choices.FULL_DAY Then start_day = end_day
         if (
@@ -62,7 +61,13 @@ class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         ):
             raise ValidationError(
                 {
-                    "end_date": "For half day leave, start date and end date must be same."
+                    "non_field_errors": [
+                        "For half day leave, start date and end date must be same."
+                    ]
                 }
             )
         return super().validate(attrs)
+
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        return super().create(validated_data)

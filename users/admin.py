@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 
 User = get_model(app_name="users", model_name="User")
 Employee = get_model(app_name="users", model_name="Employee")
+Department = get_model(app_name="users", model_name="Department")
 
 
 @admin.register(User)
@@ -83,12 +84,22 @@ class UserAdmin(UserAdmin):
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
         "user",
-        "company",
+        "organization",
         "department",
         "designation",
-        "joining_date",
-        "salary",
     )
-    list_filter = ("company", "department", "designation")
-    search_fields = ("user__username", "company", "department", "designation")
+    list_filter = ("designation",)
+    search_fields = (
+        "user__username",
+        "organization__name",
+        "department",
+        "designation",
+    )
     ordering = ("user",)
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+    ordering = ("name",)

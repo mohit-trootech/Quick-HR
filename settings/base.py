@@ -30,7 +30,6 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     "quick_hr",
-    "designation.apps.DesignationConfig",
     "attendence.apps.AttendenceConfig",
     "organization.apps.OrganizationConfig",
     "device.apps.DeviceConfig",

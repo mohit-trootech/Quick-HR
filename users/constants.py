@@ -91,6 +91,9 @@ class VerboseNames:
 class Choices:
     """User App Models Choices"""
 
+    ADMIN = "admin"
+    HR = "hr"
+
     # Company Choices
     QUICKTECH = "quicktech"
     QUICKXOM = "quickxom"

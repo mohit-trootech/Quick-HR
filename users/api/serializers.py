@@ -11,8 +11,10 @@ from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
 from utils.serailizers import RelatedUserSerializer
 
-User = get_model("users", "User")
-Otp = get_model("users", "Otp")
+User = get_model(app_name="users", model_name="User")
+Otp = get_model(app_name="users", model_name="Otp")
+Department = get_model(app_name="users", model_name="Department")
+Employee = get_model(app_name="users", model_name="Employee")
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -61,27 +63,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class OrganizationRegisterSerializer(RegistrationSerializer):
-    class Meta(RegistrationSerializer.Meta):
-        fields = [
-            "id",
-            "username",
-            "password",
-            "email",
-            "first_name",
-            "last_name",
-            "confirm_password",
-            "organization_head",
-        ]
-        extra_kwargs = {
-            "password": {"write_only": True, "validators": [password_strength]},
-        }
-
-    def create(self, validated_data):
-        validated_data["organization_head"] = True
-        return super().create(validated_data)
-
-
 class LoginSerializer(serializers.Serializer):
     """User Login Serializer"""
 
@@ -102,26 +83,7 @@ class LoginSerializer(serializers.Serializer):
         return user
 
 
-class OrganizationLoginSerializer(LoginSerializer):
-    """Organization Login Serializer"""
-
-    def validate(self, attrs):
-        """Validate User Credentials"""
-        user = super().validate(attrs)
-        if not user.organization_head:
-            raise serializers.ValidationError(
-                {"non_field_errors": ["You are not authorized to access this page"]}
-            )
-        return user
-
-
-class LoggedInUserSerializer(RelatedUserSerializer):
-    class Meta(RelatedUserSerializer.Meta):
-        fields = RelatedUserSerializer.Meta.fields + [
-            "organization_head",
-        ]
-
-
+#  TODO: Create User Profile Page
 class DetailedUserSerializer(RelatedUserSerializer):
     class Meta(RelatedUserSerializer.Meta):
         fields = [
@@ -151,7 +113,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
         return super().validate(email)
 
 
-class OtpVerificationSerializer(serializers.Serializer):
+class OtpVerificationSerializer(ForgotPasswordSerializer):
     otp = serializers.CharField()
     email = serializers.EmailField()
 
@@ -175,8 +137,54 @@ class OtpVerificationSerializer(serializers.Serializer):
 
     def validate_email(self, email):
         """Validate Email"""
-        try:
-            User.objects.get(email=email)
-            return email
-        except get_model("users", "User").DoesNotExist:
-            raise serializers.ValidationError(["Invalid Email"])
+        return super().validate_email(email)
+
+
+class OrganizationRegisterSerializer(RegistrationSerializer):
+    class Meta(RegistrationSerializer.Meta):
+        fields = [
+            "id",
+            "username",
+            "password",
+            "email",
+            "first_name",
+            "last_name",
+            "confirm_password",
+            "organization_head",
+        ]
+        extra_kwargs = {
+            "password": {"write_only": True, "validators": [password_strength]},
+        }
+
+    def create(self, validated_data):
+        validated_data["organization_head"] = True
+        return super().create(validated_data)
+
+
+class OrganizationLoginSerializer(LoginSerializer):
+    """Organization Login Serializer"""
+
+    def validate(self, attrs):
+        """Validate User Credentials"""
+        user = super().validate(attrs)
+        if not user.organization_head:
+            raise serializers.ValidationError(
+                {"non_field_errors": ["You are not authorized to access this page"]}
+            )
+        return user
+
+
+class LoggedInUserSerializer(serializers.ModelSerializer):
+    user = RelatedUserSerializer()
+
+    class Meta:
+        model = Employee
+        fields = [
+            "id",
+            "user",
+            "organization",
+            "department",
+            "designation",
+        ]
+        read_only_fields = ["id", "user", "organization", "department", "designation"]
+        depth = True

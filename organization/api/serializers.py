@@ -1,4 +1,8 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework.serializers import (
+    ModelSerializer,
+    SerializerMethodField,
+    CurrentUserDefault,
+)
 from utils.serailizers import RelatedUserSerializer
 from utils.serailizers import DynamicFieldsBaseSerializer
 from utils.utils import get_model
@@ -46,19 +50,19 @@ class CustomizationSerializer(ModelSerializer):
 
 
 class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
-    count = SerializerMethodField("users_count")
+    count = SerializerMethodField()
     customization = CustomizationSerializer(read_only=True)
+    admin = RelatedUserSerializer(read_only=True, default=CurrentUserDefault())
 
     class Meta:
         model = Organization
         fields = ["id", "name", "logo", "count", "customization", "admin"]
         extra_kwargs = {"admin": {"read_only": True}}
 
-    def users_count(self, obj):
-        return obj.users.count()
+    def get_count(self, obj):
+        return obj.employees.count()
 
     def create(self, validated_data):
-        validated_data["admin"] = self.context["request"].user
         instance = super().create(validated_data)
         self.context["request"].user.organization = instance
         self.context["request"].user.save(update_fields=["organization"])

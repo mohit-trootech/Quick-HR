@@ -5,9 +5,8 @@ from django.conf import settings
 from utils.utils import get_model, generate_random_password
 from django_extensions.db.models import ActivatorModel
 from utils.constants import EmailTemplates
-from logging import Logger
+from users.constants import ModelFields
 
-logger = Logger(__name__)
 EmailTemplate = get_model("quick_hr", "EmailTemplate")
 Otp = get_model("users", "Otp")
 User = get_model("users", "User")
@@ -18,7 +17,7 @@ class EmailService:
 
     @staticmethod
     def get_template(email_type: str):
-        """Returns Email Template"""
+        """Returns Email Template if exists else None"""
         try:
             return EmailTemplate.objects.get(
                 status=ActivatorModel.ACTIVE_STATUS, email_type=email_type
@@ -28,7 +27,7 @@ class EmailService:
 
     @staticmethod
     def get_user_otp(user):
-        """Generate OTP for the user"""
+        """Generate Otp for User if already Exist delete and generate a new one"""
         try:
             otp = Otp.objects.get(user=user.id)
             otp.delete()
@@ -54,7 +53,6 @@ class EmailService:
         if is_html:
             msg.attach_alternative(template, "text/html")
         msg.send(fail_silently=False)
-        logger.info(f"Email Send Successfully : Subject: {subject}")
         return f"Email Send Successfully : Subject: {subject}"
 
     def registration_mail(self, user, password):
@@ -88,7 +86,8 @@ class EmailService:
         template = self.get_template(email_type=EmailTemplates.PASSWORD_RESET_DONE)
         password = generate_random_password()
         user.set_password(password)
-        user.save()
+        user.is_verified = ModelFields.INACTIVE_STATUS
+        user.save(update_fields=["password", "is_verified"])
         return self.send_mail(
             template.subject,
             template.body.format(username=user.username, password=password),

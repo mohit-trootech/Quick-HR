@@ -20,7 +20,7 @@ class DynamicFieldsBaseSerializer(BaseSerializer):
 class RelatedUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "get_full_name", "image", "organization"]
+        fields = ["id", "username", "email", "get_full_name", "image", "is_verified"]
 
 
 class RelatedProjectSerializer(ModelSerializer):
