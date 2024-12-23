@@ -6,5 +6,5 @@ router = SimpleRouter()
 router.register("list", LeaveViewSet, basename="leaves-taken")
 
 urlpatterns = router.urls + [
-    path("available-leave/", available_leave),
+    path("available-leaves/", available_leave),
 ]

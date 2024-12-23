@@ -7,9 +7,9 @@ class AvailableLeave(TimeStampedModel):
     user = models.OneToOneField(
         "users.User", on_delete=models.CASCADE, related_name="available_leave"
     )
-    emergency_leaves = models.IntegerField(default=0)
-    casual_leaves = models.IntegerField(default=0)
-    encashment_leaves = models.IntegerField(default=0)
+    emergency_leaves = models.DecimalField(default=0.0, decimal_places=1, max_digits=3)
+    casual_leaves = models.DecimalField(default=0.0, decimal_places=1, max_digits=3)
+    encashment_leaves = models.DecimalField(default=0.0, decimal_places=1, max_digits=3)
 
     class Meta:
         verbose_name = VerboseNames.AVAILABLE_LEAVE

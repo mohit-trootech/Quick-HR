@@ -9,12 +9,20 @@ from django.db.models import F
 
 @receiver(post_save, sender=Leave)
 def update_available_leaves(sender, instance, created, **kwargs):
-    total_days = instance.end_date - instance.start_date
-    if created:
+    """
+    Django Signals to automate update process of available leaves based on leave approval
+    if leave updated & choice is approved update user's available leave data based on leave types
+    & leave duration
+    """
+    if not created and instance.status == Choices.APPROVED:
+        if instance.duration == Choices.FULL_DAY:
+            total_days = (instance.end_date - instance.start_date).days + 1
+        else:
+            total_days = 0.5
         available_leave = AvailableLeave.objects.get(user=instance.user)
         if instance.leave_type == Choices.CASUAL_LEAVE:
-            available_leave.casual_leaves = F("casual_leaves") + total_days.days
+            available_leave.casual_leaves = F("casual_leaves") - total_days
             available_leave.save(update_fields=["casual_leaves"])
         elif instance.leave_type == Choices.EMERGENCY_LEAVE:
-            available_leave.emergency_leaves = F("emergency_leaves") + total_days.days
+            available_leave.emergency_leaves = F("emergency_leaves") - total_days
             available_leave.save(update_fields=["emergency_leaves"])

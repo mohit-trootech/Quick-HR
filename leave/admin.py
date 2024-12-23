@@ -27,6 +27,7 @@ class LeaveAdmin(admin.ModelAdmin):
 class AvaialableLeaveAdmin(admin.ModelAdmin):
     list_display = (
         "user",
+        "casual_leaves",
         "emergency_leaves",
         "encashment_leaves",
         "pending_leaves",
