@@ -5,6 +5,7 @@ from utils.utils import get_model
 from users.constants import Choices
 from django.utils.timezone import now
 from utils.permissions import ManagerPermission
+from django.db.models import Q
 
 Leave = get_model(app_name="leave", model_name="Leave")
 AvailableLeave = get_model(app_name="leave", model_name="AvailableLeave")
@@ -34,11 +35,12 @@ class LeaveViewSet(ModelViewSet):
         return super().get_permissions()
 
     def filter_queryset(self, queryset):
+        query = Q(user=self.request.user)
         if (
             self.request.user.employee.designation == Choices.MANAGER
             and self.request.user.employee.department.name == Choices.HR
         ):
-            return self.queryset.filter(
-                user__employee__organization=self.request.user.employee.organization,
+            query = query & Q(
+                user__employee__organization=self.request.user.employee.organization
             )
-        return super().filter_queryset(user=self.request.user)
+        return queryset.filter(query)

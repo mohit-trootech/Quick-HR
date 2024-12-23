@@ -42,7 +42,6 @@ class UserAdmin(UserAdmin):
                     "email",
                     "age",
                     "address",
-                    "organization",
                 )
             },
         ),

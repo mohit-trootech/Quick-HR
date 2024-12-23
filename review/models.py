@@ -26,17 +26,11 @@ class Review(TimeStampedModel, ActivatorModel):
     reviewee = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name=VerboseNames.REVIEWEE
     )
-    performance_rating = models.IntegerField(
-        choices=Choices.RATING_CHOICES, null=True, blank=True
-    )
+    performance_rating = models.IntegerField(choices=Choices.RATING_CHOICES)
     performance_comment = models.TextField(null=True, blank=True)
-    delivery_rating = models.IntegerField(
-        choices=Choices.RATING_CHOICES, null=True, blank=True
-    )
+    delivery_rating = models.IntegerField(choices=Choices.RATING_CHOICES)
     delivery_comment = models.TextField(null=True, blank=True)
-    socialization_rating = models.IntegerField(
-        choices=Choices.RATING_CHOICES, null=True, blank=True
-    )
+    socialization_rating = models.IntegerField(choices=Choices.RATING_CHOICES)
     socialization_comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -46,7 +40,7 @@ class Review(TimeStampedModel, ActivatorModel):
         verbose_name = VerboseNames.REVIEW
         verbose_name_plural = VerboseNames.REVIEW_PLURAL
         # Revieww & Created Month and year should be unique
-        unique_together = (("reviewer", "reviewee", "created"),)
+        unique_together = (("reviewee", "created"),)
 
     @property
     def overall_review(self):
