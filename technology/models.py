@@ -13,3 +13,8 @@ class Technology(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Technology"
+        verbose_name_plural = "Technologies"
+        ordering = ["-created"]

@@ -22,8 +22,9 @@ from users.api.serializers import (
 )
 from utils.utils import AuthService
 from users.tasks import forgot_password_otp, send_credentials
-from users.constants import AuthConstantsMessages
+from users.constants import AuthConstantsMessages, PROJECT_MANAGER
 from utils.serailizers import RelatedUserSerializer
+from rest_framework.decorators import action
 
 User = get_model(app_name="users", model_name="User")
 Employee = get_model(app_name="users", model_name="Employee")
@@ -153,5 +154,10 @@ class UserList(ListModelMixin, GenericViewSet):
     def get_queryset(self):
         return self.queryset.filter(is_active=True)
 
-
-user_list = UserList.as_view({"get": "list"})
+    @action(detail=False, methods=["get"])
+    def project_managers(self, request):
+        queryset = self.get_queryset().filter(
+            employee__department__name=PROJECT_MANAGER
+        )
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

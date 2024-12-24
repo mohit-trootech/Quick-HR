@@ -11,6 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils.timezone import now
 from rest_framework.status import HTTP_200_OK
+from rest_framework.pagination import PageNumberPagination
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
@@ -22,13 +23,23 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     filterset_fields = ["status"]
     search_fields = ["title", "description"]
+    pagination_class = PageNumberPagination
 
-    def filter_queryset(self, queryset):
-        if self.request.query_params.get("user"):
-            return self.queryset.filter(
-                assigned_users__id=self.request.query_params.get("user")
-            )
-        return super().filter_queryset(queryset)
+    @action(detail=False, methods=["get"])
+    def list_users_assigned_projects(self, request, *args, **kwargs):
+        filtered_queryset = self.queryset.filter(
+            assigned_users__id=self.request.user.id
+        ).distinct()
+
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(filtered_queryset, request)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(filtered_queryset, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class TaskViewSet(ModelViewSet):

@@ -8,17 +8,17 @@ from users.api.api import (
     organization_register_view,
     organization_login_view,
     logged_in_user_view,
-    user_list,
     UserProfileView,
+    UserList,
 )
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
 router = SimpleRouter()
 router.register("profile", UserProfileView, basename="profile")
+router.register("user-list", UserList, basename="user-list")
 urlpatterns = [
     path("", include(router.urls)),
-    path("user-list/", user_list, name="user-list"),
     path("register/", register_view, name="register"),
     path(
         "organization-register/",

@@ -3,6 +3,7 @@
 from django.utils.translation import gettext_lazy as _
 
 PASSWORD_LENGTH = 13
+PROJECT_MANAGER = "project_manager"
 
 
 class ModelFields:

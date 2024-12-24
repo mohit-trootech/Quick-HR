@@ -37,6 +37,7 @@ class ActivityAdmin(ModelAdmin):
         "project",
         "task",
         "user",
+        "duration",
         "activity_type",
         "created",
     )
