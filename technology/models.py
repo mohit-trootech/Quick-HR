@@ -1,15 +1,11 @@
 # Create your models here.
 from django.db import models
-from django_extensions.db.models import TimeStampedModel
-from technology.constants import Choices
+from django_extensions.db.models import TimeStampedModel, ActivatorModel
 
 
-class Technology(TimeStampedModel):
+class Technology(TimeStampedModel, ActivatorModel):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    status = models.CharField(
-        max_length=50, choices=Choices.CHOICES, default=Choices.ACTIVE
-    )
 
     def __str__(self):
         return self.name

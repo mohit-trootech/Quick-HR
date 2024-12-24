@@ -12,3 +12,7 @@ class TechnologyAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")
     readonly_fields = ("created", "modified")
     ordering = ("-created",)
+    fieldsets = (
+        (None, {"fields": ("name", "description", "status")}),
+        ("Audit", {"fields": ("created", "modified")}),
+    )

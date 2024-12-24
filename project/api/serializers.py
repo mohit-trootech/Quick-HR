@@ -10,6 +10,7 @@ from django.db.utils import IntegrityError
 from rest_framework.exceptions import ValidationError
 from django.utils.timezone import now
 from project.constants import Choices
+from technology.api.serializers import TechnologySerializer
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
@@ -20,6 +21,8 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     project_manager = RelatedUserSerializer(read_only=True)
     team_lead = RelatedUserSerializer(read_only=True)
     assigned_users = RelatedUserSerializer(many=True, read_only=True)
+    technologies = TechnologySerializer(many=True, read_only=True)
+    tasks = RelatedTaskSerializer(many=True, read_only=True)
 
     class Meta:
         model = Project
@@ -36,6 +39,7 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "created_ago",
             "deadline",
             "tasks",
+            "technologies",
         )
         read_only_fields = ("id", "created", "modified", "created_at")
         depth = True

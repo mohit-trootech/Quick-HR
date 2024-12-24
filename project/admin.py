@@ -13,7 +13,7 @@ class ProjectAdmin(ModelAdmin):
     search_fields = ("title", "description")
     readonly_fields = ("created", "modified")
     ordering = ("-created",)
-    filter_horizontal = ("assigned_users",)
+    filter_horizontal = ("assigned_users", "technologies")
 
 
 @register(Task)

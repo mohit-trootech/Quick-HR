@@ -28,6 +28,9 @@ class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
     assigned_users = models.ManyToManyField(
         "users.User", blank=True, related_name=VerboseNames.ASSIGNED_USERS
     )
+    technologies = models.ManyToManyField(
+        "technology.Technology", blank=True, related_name="projects"
+    )
 
     class Meta:
         verbose_name = VerboseNames.PROJECT
