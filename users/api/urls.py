@@ -8,6 +8,7 @@ from users.api.api import (
     organization_register_view,
     organization_login_view,
     logged_in_user_view,
+    logged_in_admin_view,
     UserProfileView,
     UserList,
 )
@@ -27,6 +28,7 @@ urlpatterns = [
     ),
     path("login/", login_view, name="login"),
     path("logged-in-user/", logged_in_user_view, name="logged-in-user"),
+    path("logged-in-admin/", logged_in_admin_view, name="logged-in-admin"),
     path("organization-login/", organization_login_view, name="organization-login"),
     path("forgot-password/", forgot_password, name="forgot-password"),
     path("otp-verification/", otp_verification, name="otp-verification"),

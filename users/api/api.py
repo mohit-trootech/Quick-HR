@@ -19,6 +19,7 @@ from users.api.serializers import (
     OrganizationRegisterSerializer,
     OrganizationLoginSerializer,
     LoggedInUserSerializer,
+    OrganizationLoggedInAdminSerializer,
 )
 from utils.utils import AuthService
 from users.tasks import forgot_password_otp, send_credentials
@@ -143,6 +144,24 @@ class AuthUserView(APIView):
 
 
 logged_in_user_view = AuthUserView.as_view()
+
+
+class AuthOrganizationHeadView(APIView):
+    serializer_class = OrganizationLoggedInAdminSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            admin = User.objects.get(pk=request.user.pk)
+            serializer = self.serializer_class(admin)
+            return Response(serializer.data)
+        except Employee.DoesNotExist:
+            return Response(
+                {"message": "Organization admin not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+
+logged_in_admin_view = AuthOrganizationHeadView.as_view()
 
 
 class UserList(ListModelMixin, GenericViewSet):

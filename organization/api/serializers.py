@@ -11,6 +11,18 @@ from rest_framework import serializers
 Organization = get_model(app_name="organization", model_name="Organization")
 Customization = get_model(app_name="organization", model_name="Customization")
 User = get_model(app_name="users", model_name="User")
+Employee = get_model(app_name="users", model_name="Employee")
+Deparment = get_model(app_name="users", model_name="Department")
+
+
+class DepartmentSerializer(ModelSerializer):
+    class Meta:
+        model = Deparment
+        fields = ["id", "name"]
+
+    def create(self, validated_data):
+        validated_data["organization"] = self.context["request"].user.organization_admin
+        return super().create(validated_data)
 
 
 class CustomizationSerializer(ModelSerializer):
@@ -18,27 +30,12 @@ class CustomizationSerializer(ModelSerializer):
         model = Customization
         fields = [
             "id",
-            "leave",
             "overtime",
             "project",
-            "review",
             "attendence",
             "salary",
             "device",
-            "holiday",
         ]
-
-    def validate(self, attrs):
-        # leave, review, holiday, project are required fields
-        if (
-            not attrs.get("leave")
-            or not attrs.get("review")
-            or not attrs.get("holiday")
-        ):
-            raise serializers.ValidationError(
-                "Leave, Review, Holiday are required fields"
-            )
-        return super().validate(attrs)
 
     def update(self, instance, validated_data):
         # If field not in validated_data make it False
@@ -52,26 +49,30 @@ class CustomizationSerializer(ModelSerializer):
 class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     count = SerializerMethodField()
     customization = CustomizationSerializer(read_only=True)
-    admin = RelatedUserSerializer(read_only=True, default=CurrentUserDefault())
+    admin = RelatedUserSerializer(default=CurrentUserDefault())
 
     class Meta:
         model = Organization
         fields = ["id", "name", "logo", "count", "customization", "admin"]
-        extra_kwargs = {"admin": {"read_only": True}}
+
+    def validate_admin(self, value):
+        if not value.organization_head:
+            raise serializers.ValidationError(
+                "Only Organization Head can create Organization"
+            )
+        return value
 
     def get_count(self, obj):
         return obj.employees.count()
 
-    def create(self, validated_data):
-        instance = super().create(validated_data)
-        self.context["request"].user.organization = instance
-        self.context["request"].user.save(update_fields=["organization"])
-        return instance
 
+class OrganizationUsersSerializer(serializers.ModelSerializer):
+    user = RelatedUserSerializer()
 
-class OrganizationUsersSerializer(RelatedUserSerializer):
-    class Meta(RelatedUserSerializer.Meta):
-        fields = RelatedUserSerializer.Meta.fields + ["organization"]
+    class Meta:
+        model = Employee
+        fields = ["id", "user", "organization", "department", "designation"]
+        read_only_fields = ["id", "organization"]
 
     def create(self, validated_data):
         validated_data["organization"] = self.context["request"].user.organization

@@ -13,10 +13,10 @@ def send_registration_mail(sender, instance, created, **kwargs):
     """Send Registration Mail When User Created"""
     if created:
         auth_user_services = AuthUserCreatedServices(instance)
-        # If Registered User is Not Organization Head
         auth_user_services.create_user_leaves()
         if not instance.organization_head:
+            # If Registered User is Not Organization Head
             password = auth_user_services._generate_password()
             auth_user_services.send_registration_mail(password=password)
-        return True
+            return True
     return False

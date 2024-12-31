@@ -151,13 +151,16 @@ class OrganizationRegisterSerializer(RegistrationSerializer):
             "last_name",
             "confirm_password",
             "organization_head",
+            "is_verified",
         ]
         extra_kwargs = {
             "password": {"write_only": True, "validators": [password_strength]},
         }
 
     def create(self, validated_data):
+        """Organization User Registeration Serializer Create Method if User is Organization Head then Set Organization Head to True & Verified to True"""
         validated_data["organization_head"] = True
+        validated_data["is_verified"] = True
         return super().create(validated_data)
 
 
@@ -188,3 +191,16 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "user", "organization", "department", "designation"]
         depth = True
+
+
+class OrganizationLoggedInAdminSerializer(RelatedUserSerializer):
+
+    class Meta(RelatedUserSerializer.Meta):
+        fields = RelatedUserSerializer.Meta.fields + [
+            "first_name",
+            "last_name",
+            "last_login",
+            "organization_head",
+            "organization_admin",
+        ]
+        depth = 1

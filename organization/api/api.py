@@ -3,13 +3,16 @@ from organization.api.serializers import (
     OrganizationSerializer,
     CustomizationSerializer,
     OrganizationUsersSerializer,
+    DepartmentSerializer,
 )
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from utils.utils import get_model
 
 Organization = get_model(app_name="organization", model_name="Organization")
 Customization = get_model(app_name="organization", model_name="Customization")
 User = get_model(app_name="users", model_name="User")
+Department = get_model(app_name="users", model_name="Department")
+Employee = get_model(app_name="users", model_name="Employee")
 
 
 class OrganizationView(ModelViewSet):
@@ -39,3 +42,9 @@ class OrganizationUsersView(generics.ListCreateAPIView):
 
 
 organization_users_view = OrganizationUsersView.as_view()
+
+
+class DepartmentView(generics.ListCreateAPIView, GenericViewSet):
+    serializer_class = DepartmentSerializer
+    queryset = Department.objects.all()
+    pagination_class = None
