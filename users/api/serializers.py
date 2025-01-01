@@ -194,7 +194,6 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
 
 
 class OrganizationLoggedInAdminSerializer(RelatedUserSerializer):
-
     class Meta(RelatedUserSerializer.Meta):
         fields = RelatedUserSerializer.Meta.fields + [
             "first_name",
@@ -203,4 +202,20 @@ class OrganizationLoggedInAdminSerializer(RelatedUserSerializer):
             "organization_head",
             "organization_admin",
         ]
+        depth = 1
+
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    user = RelatedUserSerializer()
+
+    class Meta:
+        model = Employee
+        fields = [
+            "id",
+            "user",
+            "organization",
+            "department",
+            "designation",
+        ]
+        read_only_fields = ["id", "organization", "user"]
         depth = 1

@@ -20,11 +20,11 @@ from users.api.serializers import (
     OrganizationLoginSerializer,
     LoggedInUserSerializer,
     OrganizationLoggedInAdminSerializer,
+    EmployeeSerializer,
 )
 from utils.utils import AuthService
 from users.tasks import forgot_password_otp, send_credentials
 from users.constants import AuthConstantsMessages, PROJECT_MANAGER
-from utils.serailizers import RelatedUserSerializer
 from rest_framework.decorators import action
 
 User = get_model(app_name="users", model_name="User")
@@ -165,18 +165,25 @@ logged_in_admin_view = AuthOrganizationHeadView.as_view()
 
 
 class UserList(ListModelMixin, GenericViewSet):
-    serializer_class = RelatedUserSerializer
-    queryset = User.objects.all()
+    serializer_class = EmployeeSerializer
+    queryset = Employee.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    search_fields = ["username", "first_name", "last_name", "email"]
+    search_fields = [
+        "user__username",
+        "user__first_name",
+        "user__last_name",
+        "user__email",
+    ]
 
     def get_queryset(self):
-        return self.queryset.filter(is_active=True)
+        return self.queryset.filter(
+            user__is_active=True,
+            user__organization_head=False,
+            organization=self.request.user.employee.organization,
+        )
 
     @action(detail=False, methods=["get"])
     def project_managers(self, request):
-        queryset = self.get_queryset().filter(
-            employee__department__name=PROJECT_MANAGER
-        )
+        queryset = self.get_queryset().filter(department__name=PROJECT_MANAGER)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

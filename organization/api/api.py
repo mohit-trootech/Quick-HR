@@ -36,8 +36,9 @@ class OrganizationUsersView(generics.ListCreateAPIView):
     filter_fields = ("username",)
 
     def get_queryset(self):
-        return User.objects.filter(
-            organization=self.request.user.organization_admin, organization_head=False
+        return Employee.objects.filter(
+            organization=self.request.user.organization_admin,
+            user__organization_head=False,
         )
 
 

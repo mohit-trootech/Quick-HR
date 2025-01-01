@@ -67,13 +67,23 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
 
 class OrganizationUsersSerializer(serializers.ModelSerializer):
-    user = RelatedUserSerializer()
+    users = RelatedUserSerializer(read_only=True)
+    user = RelatedUserSerializer(read_only=True)
 
     class Meta:
         model = Employee
-        fields = ["id", "user", "organization", "department", "designation"]
+        fields = ["id", "users", "user", "organization", "department", "designation"]
         read_only_fields = ["id", "organization"]
 
     def create(self, validated_data):
-        validated_data["organization"] = self.context["request"].user.organization
+        serializer = RelatedUserSerializer(
+            data={
+                "email": self.initial_data["email"],
+                "username": self.initial_data["username"],
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        validated_data["user"] = user
+        validated_data["organization"] = self.context["request"].user.organization_admin
         return super().create(validated_data)
