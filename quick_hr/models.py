@@ -61,6 +61,7 @@ class Holiday(TimeStampedModel, TitleDescriptionModel):
         verbose_name = _("Holiday")
         verbose_name_plural = _("Holidays")
         ordering = ["-created"]
+        unique_together = ["title", "starts_from", "ends_on"]
 
     def __str__(self):
         return self.title
