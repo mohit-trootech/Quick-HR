@@ -1,6 +1,7 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 from leave.constants import Choices, VerboseNames
+from django_markdown_model.fields import MarkDownField
 
 
 class AvailableLeave(TimeStampedModel):
@@ -26,6 +27,7 @@ class AvailableLeave(TimeStampedModel):
 
 
 class Leave(TimeStampedModel, TitleDescriptionModel):
+    description = MarkDownField()
     user = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="leaves"
     )

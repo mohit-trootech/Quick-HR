@@ -10,6 +10,7 @@ from django_markdown_model.fields import MarkDownField
 
 
 class Project(TimeStampedModel, TitleDescriptionModel, ActivatorModel):
+    description = MarkDownField()
     deadline = models.DateField(blank=True, null=True)
     project_manager = models.ForeignKey(
         "users.User",

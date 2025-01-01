@@ -9,6 +9,7 @@ from django_extensions.db.models import (
 from django.utils.translation import gettext_lazy as _
 from utils.constants import EmailTemplates
 from django.utils.timesince import timesince
+from django_markdown_model.fields import MarkDownField
 
 
 class EmailTemplate(TimeStampedModel, ActivatorModel):
@@ -32,6 +33,7 @@ class EmailTemplate(TimeStampedModel, ActivatorModel):
 
 
 class BroadCast(TitleDescriptionModel, TimeStampedModel, ActivatorModel):
+    description = MarkDownField()
     user = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="broadcasts"
     )
@@ -43,6 +45,7 @@ class BroadCast(TitleDescriptionModel, TimeStampedModel, ActivatorModel):
         verbose_name = _("BroadCast")
         verbose_name_plural = _("BroadCasts")
         ordering = ["-created"]
+        unique_together = ["title", "user"]
 
     @property
     def created_ago(self):
@@ -50,6 +53,7 @@ class BroadCast(TitleDescriptionModel, TimeStampedModel, ActivatorModel):
 
 
 class Holiday(TimeStampedModel, TitleDescriptionModel):
+    description = MarkDownField()
     starts_from = models.DateField(verbose_name=_("Starts From"))
     ends_on = models.DateField(verbose_name=_("Ends On"))
 

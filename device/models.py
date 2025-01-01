@@ -1,9 +1,11 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel, TitleSlugDescriptionModel
 from device.constants import Choices, VerboseNames
+from django_markdown_model.fields import MarkDownField
 
 
 class Device(TitleSlugDescriptionModel, TimeStampedModel):
+    description = MarkDownField()
     status = models.CharField(
         default=True, choices=Choices.STATUS_CHOICES, max_length=16
     )

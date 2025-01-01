@@ -1,6 +1,6 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
-
+from django_markdown_model.fields import MarkDownField
 from documents.constants import Constants, VerboseName
 
 
@@ -14,6 +14,7 @@ def document_upload_path(instance, filename):
 class Document(TitleDescriptionModel, TimeStampedModel):
     """Document model to store documents related to various models."""
 
+    description = MarkDownField()
     doc = models.FileField(
         upload_to=document_upload_path, verbose_name=VerboseName.DOCFILE
     )

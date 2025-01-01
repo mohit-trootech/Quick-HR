@@ -1,5 +1,5 @@
 from utils.utils import get_model
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, CurrentUserDefault
 from users.api.serializers import RelatedUserSerializer
 
 BroadCast = get_model(app_name="quick_hr", model_name="BroadCast")
@@ -7,7 +7,7 @@ Holiday = get_model(app_name="quick_hr", model_name="Holiday")
 
 
 class BroadCastSerializer(ModelSerializer):
-    user = RelatedUserSerializer(read_only=True)
+    user = RelatedUserSerializer(default=CurrentUserDefault())
 
     class Meta:
         model = BroadCast
