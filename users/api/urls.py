@@ -9,7 +9,7 @@ from users.api.api import (
     organization_login_view,
     logged_in_user_view,
     logged_in_admin_view,
-    account_verification,
+    account_verification_view,
     password_reset_view,
     UserProfileView,
     UserList,
@@ -33,7 +33,9 @@ urlpatterns = [
     path("logged-in-admin/", logged_in_admin_view, name="logged-in-admin"),
     path("organization-login/", organization_login_view, name="organization-login"),
     path("otp-request/", otp_request_view, name="otp-request"),
-    path("account-verification/", account_verification, name="account-verification"),
+    path(
+        "account-verification/", account_verification_view, name="account-verification"
+    ),
     path("otp-verification/", otp_verification, name="otp-verification"),
     path("password-reset/", password_reset_view, name="password-reset"),
 ]

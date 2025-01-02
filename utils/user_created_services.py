@@ -16,8 +16,8 @@ class AuthUserCreatedServices:
         """Generate Password"""
 
         password = secrets.token_urlsafe(PASSWORD_LENGTH)
-        # self.user.set_password(password)
-        self.user.set_password("1234")
+        self.user.set_password(password)
+        # self.user.set_password("1234")
         self.user.save(update_fields=["password"])
         return password
 

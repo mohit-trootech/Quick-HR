@@ -60,10 +60,18 @@ class EmailService:
         template = self.get_template(email_type=EmailTemplates.REGISTRED_SUCCESSFULLY)
         return self.send_mail(
             template.subject,
-            template.body.format(username=user.username, password=password),
+            template.body.format(
+                organization=user.employee.organization,
+                user=user.username,
+                password=password,
+            ),
             template.is_html,
             [user.email],
-            template.template,
+            template.template.format(
+                organization=user.employee.organization,
+                user=user.username,
+                password=password,
+            ),
         )
 
     def send_otp(self, user):
@@ -71,17 +79,22 @@ class EmailService:
         Sends a Forgot Password OTP to the specified user.
         """
         template = self.get_template(email_type=EmailTemplates.OTP_REQUEST)
+        otp = self.get_user_otp(user)
         return self.send_mail(
             template.subject,
-            template.body.format(user=user.username, otp=self.get_user_otp(user).otp),
+            template.body.format(
+                expiry=otp.expirytime.strftime("%B %d %Y, %H:%M %p %Z"), otp=otp.otp
+            ),
             template.is_html,
             [user.email],
-            template.template,
+            template.template.format(
+                expiry=otp.expirytime.strftime("%B %d %Y, %H:%M %p %Z"), otp=otp.otp
+            ),
         )
 
     def send_credentails(self, user):
         """Send Credentials to the user"""
-        template = self.get_template(email_type=EmailTemplates.PASSWORD_RESET_DONE)
+        template = self.get_template(email_type=EmailTemplates.FORGOT_PASSWORD_SUCCESS)
         password = generate_random_password()
         user.set_password(password)
         user.is_verified = ModelFields.INACTIVE_STATUS
@@ -89,6 +102,28 @@ class EmailService:
         return self.send_mail(
             template.subject,
             template.body.format(user=user.username, password=password),
+            template.is_html,
+            [user.email],
+            template.template.format(user=user.username, password=password),
+        )
+
+    def account_verification(self, user):
+        """Send Account Verification Email to the user"""
+        template = self.get_template(email_type=EmailTemplates.VERIFY_EMAIL)
+        return self.send_mail(
+            template.subject,
+            template.body,
+            template.is_html,
+            [user.email],
+            template.template,
+        )
+
+    def password_reset_done(self, user):
+        """Send Password Reset Email to the user"""
+        template = self.get_template(email_type=EmailTemplates.PASSWORD_RESET_DONE)
+        return self.send_mail(
+            template.subject,
+            template.body,
             template.is_html,
             [user.email],
             template.template,

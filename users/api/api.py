@@ -24,7 +24,12 @@ from users.api.serializers import (
     PasswordResetSerializer,
 )
 from utils.utils import AuthService
-from users.tasks import send_otp, send_credentials
+from users.tasks import (
+    send_otp,
+    send_credentials,
+    account_verification,
+    password_reset_done,
+)
 from users.constants import AuthConstantsMessages, PROJECT_MANAGER
 from rest_framework.decorators import action
 from users.constants import ModelFields
@@ -106,14 +111,14 @@ class AccountVerificationView(APIView):
         user = User.objects.get(email=serializer.validated_data["email"])
         user.is_verified = ModelFields.ACTIVE_STATUS
         user.save(update_fields=["is_verified"])
-        # TODO: Send Email to User About Account verification Success
+        account_verification.delay(email=user.email)
         return Response(
             {"message": AuthConstantsMessages.ACCOUNT_VERIFICAION_SUCCESS},
             status=status.HTTP_200_OK,
         )
 
 
-account_verification = AccountVerificationView.as_view()
+account_verification_view = AccountVerificationView.as_view()
 
 
 class OtpVerificationView(APIView):
@@ -146,6 +151,7 @@ class PasswordResetView(APIView):
         user = User.objects.get(email=serializer.validated_data["email"])
         user.set_password(serializer.validated_data["new_password"])
         user.save(update_fields=["password"])
+        password_reset_done.delay(email=user.email)
         return Response({"message": AuthConstantsMessages.PASSWORD_RESET_SUCCESS})
 
 
