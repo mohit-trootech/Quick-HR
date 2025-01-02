@@ -18,8 +18,8 @@ Activity = get_model(app_name="project", model_name="Activity")
 
 
 class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
-    project_manager = RelatedUserSerializer(read_only=True)
-    team_lead = RelatedUserSerializer(read_only=True)
+    project_manager = RelatedUserSerializer()
+    team_lead = RelatedUserSerializer()
     assigned_users = RelatedUserSerializer(many=True, read_only=True)
     technologies = TechnologySerializer(many=True, read_only=True)
     tasks = RelatedTaskSerializer(many=True, read_only=True)
@@ -48,7 +48,6 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         try:
             return super().create(validated_data)
         except IntegrityError:
-            breakpoint()
             raise ValidationError({"detail": "Project already exists"})
 
 

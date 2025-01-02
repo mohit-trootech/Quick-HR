@@ -51,6 +51,8 @@ class UserRegistrationMessages:
 class AuthConstantsMessages:
     """Auth Constants Messages"""
 
+    PASSWORD_SAME_AS_OLD = _("New password cannot be same as old password")
+    PASSWORD_RESET_SUCCESS = _("Password reset successfully")
     INVALID_EMAIL_OR_PASSWORD = _("Invalid email or password")
     USER_ALREADY_EXIST = _("User already exists with this email")
     PASSWORD_DOES_NOT_MATCH = _("Password does not match")
@@ -62,7 +64,11 @@ class AuthConstantsMessages:
     INVALID_OTP = _("Invalid OTP")
     EXPIRED_OTP = _("OTP has expired")
     CREDENTIALS_SEND_ON_MAIL = _("Your credentials has been send on your mail")
+    ACCOUNT_VERIFICAION_SUCCESS = _("Account verified successfully")
     REFRESH_TOKEN_IS_REQUIRED = _("Refresh token is required")
+    USER_NOT_VERIFIED = _(
+        "User is not verified, Please verify your account to continue"
+    )
 
 
 class ResponseMessages:

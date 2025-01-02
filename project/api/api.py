@@ -25,12 +25,17 @@ class ProjectViewSet(ModelViewSet):
     search_fields = ["title", "description"]
     pagination_class = PageNumberPagination
 
+    def create(self, request, *args, **kwargs):
+        breakpoint()
+        return super().create(request, *args, **kwargs)
+
     @action(detail=False, methods=["get"])
     def list_users_assigned_projects(self, request, *args, **kwargs):
-        filtered_queryset = self.queryset.filter(
-            assigned_users__id=self.request.user.id
-        ).distinct()
-
+        filtered_queryset = (
+            self.filter_queryset(self.get_queryset())
+            .filter(assigned_users__id=self.request.user.id)
+            .distinct()
+        )
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(filtered_queryset, request)
 

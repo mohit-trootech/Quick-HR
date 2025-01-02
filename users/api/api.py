@@ -14,18 +14,20 @@ from users.api.serializers import (
     RegistrationSerializer,
     LoginSerializer,
     DetailedUserSerializer,
-    ForgotPasswordSerializer,
+    EmailVerificationSerializer,
     OtpVerificationSerializer,
     OrganizationRegisterSerializer,
     OrganizationLoginSerializer,
     LoggedInUserSerializer,
     OrganizationLoggedInAdminSerializer,
     EmployeeSerializer,
+    PasswordResetSerializer,
 )
 from utils.utils import AuthService
-from users.tasks import forgot_password_otp, send_credentials
+from users.tasks import send_otp, send_credentials
 from users.constants import AuthConstantsMessages, PROJECT_MANAGER
 from rest_framework.decorators import action
+from users.constants import ModelFields
 
 User = get_model(app_name="users", model_name="User")
 Employee = get_model(app_name="users", model_name="Employee")
@@ -71,31 +73,47 @@ class UserProfileView(
     queryset = User.objects.filter(is_active=True)
 
 
-class ForgotPasswordView(APIView):
+class OtpRequestView(APIView):
     """Forgot Password API View"""
 
     permission_classes = [permissions.AllowAny]
-    serializer_class = ForgotPasswordSerializer
+    serializer_class = EmailVerificationSerializer
 
     def post(self, request, *args, **kwargs):
         """Forgot Password"""
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            user = User.objects.get(email=serializer.validated_data.get("email"))
-            forgot_password_otp.delay(user.id)
-        except User.DoesNotExist:
-            return Response(
-                {"message": AuthConstantsMessages.USE_NOT_FOUND},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        send_otp.delay(serializer.validated_data.get("email"))
         return Response(
             {"message": AuthConstantsMessages.EMAIL_VERIFIED_OTP_DELIVERED},
             status=status.HTTP_200_OK,
         )
 
 
-forgot_password = ForgotPasswordView.as_view()
+otp_request_view = OtpRequestView.as_view()
+
+
+class AccountVerificationView(APIView):
+    """Account Verification API View"""
+
+    permission_classes = [permissions.AllowAny]
+    serializer_class = OtpVerificationSerializer
+
+    def post(self, request, *args, **kwargs):
+        """Account Verification"""
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(email=serializer.validated_data["email"])
+        user.is_verified = ModelFields.ACTIVE_STATUS
+        user.save(update_fields=["is_verified"])
+        # TODO: Send Email to User About Account verification Success
+        return Response(
+            {"message": AuthConstantsMessages.ACCOUNT_VERIFICAION_SUCCESS},
+            status=status.HTTP_200_OK,
+        )
+
+
+account_verification = AccountVerificationView.as_view()
 
 
 class OtpVerificationView(APIView):
@@ -108,11 +126,30 @@ class OtpVerificationView(APIView):
         """Verify User Otp"""
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        send_credentials.delay(serializer.validated_data.get("email"))
+        send_credentials.delay(serializer.validated_data["email"])
         return Response({"message": AuthConstantsMessages.CREDENTIALS_SEND_ON_MAIL})
 
 
 otp_verification = OtpVerificationView.as_view()
+
+
+class PasswordResetView(APIView):
+    """Password Reset API View"""
+
+    serializer_class = PasswordResetSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        """Reset Password"""
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(email=serializer.validated_data["email"])
+        user.set_password(serializer.validated_data["new_password"])
+        user.save(update_fields=["password"])
+        return Response({"message": AuthConstantsMessages.PASSWORD_RESET_SUCCESS})
+
+
+password_reset_view = PasswordResetView.as_view()
 
 
 class OrganizationRegisterView(RegistrationApiView):

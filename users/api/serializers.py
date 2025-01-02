@@ -10,6 +10,7 @@ from email_validator import EmailNotValidError
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
 from utils.serailizers import RelatedUserSerializer
+from users.constants import ModelFields
 
 User = get_model(app_name="users", model_name="User")
 Otp = get_model(app_name="users", model_name="Otp")
@@ -80,6 +81,10 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"non_field_errors": [AuthConstantsMessages.INVALID_EMAIL_OR_PASSWORD]}
             )
+        if user.is_verified == ModelFields.INACTIVE_STATUS:
+            raise serializers.ValidationError(
+                {"non_field_errors": [AuthConstantsMessages.USER_NOT_VERIFIED]}
+            )
         return user
 
 
@@ -101,7 +106,7 @@ class DetailedUserSerializer(RelatedUserSerializer):
         ]
 
 
-class ForgotPasswordSerializer(serializers.Serializer):
+class EmailVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, email):
@@ -113,9 +118,8 @@ class ForgotPasswordSerializer(serializers.Serializer):
         return super().validate(email)
 
 
-class OtpVerificationSerializer(ForgotPasswordSerializer):
+class OtpVerificationSerializer(EmailVerificationSerializer):
     otp = serializers.CharField()
-    email = serializers.EmailField()
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
@@ -135,9 +139,33 @@ class OtpVerificationSerializer(ForgotPasswordSerializer):
         except ObjectDoesNotExist as err:
             raise serializers.ValidationError({"non_fields_error": [str(err)]})
 
-    def validate_email(self, email):
-        """Validate Email"""
-        return super().validate_email(email)
+
+class PasswordResetSerializer(EmailVerificationSerializer):
+    password = serializers.CharField()
+    new_password = serializers.CharField()
+    confirm_password = serializers.CharField()
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        user = User.objects.get(email=attrs["email"])
+        if not user.check_password(attrs["password"]):
+            raise serializers.ValidationError(
+                {"password": [AuthConstantsMessages.INVALID_PASSWORD]}
+            )
+        if attrs["new_password"] == attrs["password"]:
+            raise serializers.ValidationError(
+                {"new_password": [AuthConstantsMessages.PASSWORD_SAME_AS_OLD]}
+            )
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError(
+                {"confirm_password": [UserRegistrationMessages.PASSWORD_DOES_NOT_MATCH]}
+            )
+        return attrs
+
+    def validate_new_password(self, value):
+        """Validate New Password"""
+        password_strength(value)
+        return value
 
 
 class OrganizationRegisterSerializer(RegistrationSerializer):

@@ -13,9 +13,9 @@ def registration_mail(id: int, password: str):
 
 
 @shared_task
-def forgot_password_otp(id: int):
+def send_otp(email: str):
     """Sends a Forgot Password OTP to the user"""
-    return EmailService().forgot_password_otp(User.objects.get(id=id))
+    return EmailService().send_otp(User.objects.get(email=email))
 
 
 @shared_task

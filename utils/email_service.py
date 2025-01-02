@@ -66,16 +66,14 @@ class EmailService:
             template.template,
         )
 
-    def forgot_password_otp(self, user):
+    def send_otp(self, user):
         """
         Sends a Forgot Password OTP to the specified user.
         """
-        template = self.get_template(email_type=EmailTemplates.PASSWORD_RESET)
+        template = self.get_template(email_type=EmailTemplates.OTP_REQUEST)
         return self.send_mail(
             template.subject,
-            template.body.format(
-                otp=self.get_user_otp(user).otp, username=user.username
-            ),
+            template.body.format(user=user.username, otp=self.get_user_otp(user).otp),
             template.is_html,
             [user.email],
             template.template,
@@ -90,7 +88,7 @@ class EmailService:
         user.save(update_fields=["password", "is_verified"])
         return self.send_mail(
             template.subject,
-            template.body.format(username=user.username, password=password),
+            template.body.format(user=user.username, password=password),
             template.is_html,
             [user.email],
             template.template,

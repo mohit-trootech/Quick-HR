@@ -3,12 +3,14 @@
 from users.api.api import (
     register_view,
     login_view,
-    forgot_password,
+    otp_request_view,
     otp_verification,
     organization_register_view,
     organization_login_view,
     logged_in_user_view,
     logged_in_admin_view,
+    account_verification,
+    password_reset_view,
     UserProfileView,
     UserList,
 )
@@ -30,6 +32,8 @@ urlpatterns = [
     path("logged-in-user/", logged_in_user_view, name="logged-in-user"),
     path("logged-in-admin/", logged_in_admin_view, name="logged-in-admin"),
     path("organization-login/", organization_login_view, name="organization-login"),
-    path("forgot-password/", forgot_password, name="forgot-password"),
+    path("otp-request/", otp_request_view, name="otp-request"),
+    path("account-verification/", account_verification, name="account-verification"),
     path("otp-verification/", otp_verification, name="otp-verification"),
+    path("password-reset/", password_reset_view, name="password-reset"),
 ]
