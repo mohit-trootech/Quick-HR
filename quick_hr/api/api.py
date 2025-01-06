@@ -5,9 +5,10 @@ from quick_hr.api.serializers import (
     HolidayCsvSerializer,
 )
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.decorators import action
 from utils.utils import get_model
+from rest_framework.views import APIView
 
 BroadCast = get_model(app_name="quick_hr", model_name="BroadCast")
 Holiday = get_model(app_name="quick_hr", model_name="Holiday")
@@ -30,3 +31,29 @@ class HolidayView(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response("Holidays created successfully", status=HTTP_201_CREATED)
+
+
+class FireStoreConfiguration(APIView):
+    """Fire Store DB Configuration"""
+
+    permission_classes = []
+
+    def get(self, request):
+        from dotenv import dotenv_values
+
+        config = dotenv_values(".env")
+        return Response(
+            {
+                "apiKey": config["API_KEY"],
+                "authDomain": config["AUTH_DOMAIN"],
+                "projectId": config["PROJECT_ID"],
+                "storageBucket": config["STORAGE_BUCKET"],
+                "messagingSenderId": config["MESSAGING_SENDER_ID"],
+                "appId": config["APP_ID"],
+                "measurementId": config["MEASUREMENT_ID"],
+            },
+            status=HTTP_200_OK,
+        )
+
+
+firestore_configuration = FireStoreConfiguration.as_view()
