@@ -13,10 +13,13 @@ Department = get_model(app_name="users", model_name="Department")
 
 
 class AvailableLeaveViewSet(RetrieveAPIView, GenericAPIView):
+    """Available Leave model view with RetrieveApi view"""
+
     queryset = AvailableLeave.objects.all()
     serializer_class = AvailableLeaveSerializer
 
     def get_object(self):
+        """Logged in users's available leave"""
         return self.request.user.available_leave
 
 
@@ -26,15 +29,18 @@ available_leave = AvailableLeaveViewSet.as_view()
 class LeaveViewSet(ModelViewSet):
     queryset = Leave.objects.filter(end_date__gte=now())
     serializer_class = LeaveSerializer
-    search_fields = ["title", "description"]
+    search_fields = ["title", "description", "user__username"]
     filterset_fields = ["status"]
 
     def get_permissions(self):
+        """returns permissions based on the request method, defaults [Authenticated] but for [PUT, PATCH] returns [ManagerPermission]"""
         if self.request.method in ("PUT", "PATCH"):
             return [ManagerPermission()]
         return super().get_permissions()
 
     def filter_queryset(self, queryset):
+        """returns filtered queryset based on the logged in user's designation and department"""
+        queryset = super().filter_queryset(queryset)
         query = Q(user=self.request.user)
         if (
             self.request.user.employee.designation == Choices.MANAGER

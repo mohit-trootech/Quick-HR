@@ -3,6 +3,22 @@
 from django.utils.translation import gettext_noop as _
 
 
+class AuthMessages:
+    """App: Review Auth Messages"""
+
+    USER_NOT_FOUND = _("User not found.")
+    REVIEWER_NOT_FOUND = _("Reviewer not found.")
+    REVIEWEE_NOT_FOUND = _("Reviewee not found.")
+    REVIEWER_REVIEWEE_SAME = _("Reviewer and reviewee cannot be the same.")
+    REVIEWER_REVIEWEE_DIFFERENT_ORGANIZATION = _(
+        "Reviewer and reviewee should be in the same organization."
+    )
+    REVIEWER_REVIEWEE_DIFFERENT_DEPARTMENT = _(
+        "Reviewer and reviewee should be in the same department."
+    )
+    REVIEW_ALREADY_EXISTS = _("Review already exists.")
+
+
 class VerboseNames:
     """App: Model Verbose Names"""
 

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.decorators import action
 from utils.utils import get_model
+from quick_hr.constants import AuthMessages
 from rest_framework.views import APIView
 
 BroadCast = get_model(app_name="quick_hr", model_name="BroadCast")
@@ -30,13 +31,11 @@ class HolidayView(ModelViewSet):
         serializer = HolidayCsvSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response("Holidays created successfully", status=HTTP_201_CREATED)
+        return Response(AuthMessages.HOLIDAYS_CREATED, status=HTTP_201_CREATED)
 
 
 class FireStoreConfiguration(APIView):
     """Fire Store DB Configuration"""
-
-    permission_classes = []
 
     def get(self, request):
         from dotenv import dotenv_values

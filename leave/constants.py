@@ -3,6 +3,17 @@
 from django.utils.translation import gettext_noop as _
 
 
+class AuthMessages:
+    """App: Leave auth messages"""
+
+    END_DATE_GREATER_THAN_START_DATE = _(
+        "End date must be greater than or equal to start date."
+    )
+    HALF_DAY_LEAVE_ERROR = _(
+        "For half day leave, start date and end date must be same."
+    )
+
+
 class VerboseNames:
     """App: Model Verbose Names"""
 

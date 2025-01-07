@@ -54,11 +54,10 @@ class TaskViewSet(ModelViewSet):
     search_fields = ["title", "description"]
 
     def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
         if self.request.query_params.get("project"):
-            return self.queryset.filter(
-                project__id=self.request.query_params.get("project")
-            )
-        return super().filter_queryset(queryset)
+            return queryset.filter(project__id=self.request.query_params.get("project"))
+        return queryset
 
 
 class ActivityViewSet(ModelViewSet):
@@ -67,13 +66,12 @@ class ActivityViewSet(ModelViewSet):
     filterset_fields = ["activity_type", "task", "user", "project"]
     search_fields = ["activity_type"]
     ordering = ["-created"]
-    permission_classes = []
 
     @action(detail=False, methods=["get"])
     def last_user_activity(self, request, *args, **kwargs):
-        filtered_queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset())
         last_activity = (
-            filtered_queryset.filter(
+            queryset.filter(
                 activity_type__in=[
                     Choices.TIMER_START,
                     Choices.TIMER_PAUSE,

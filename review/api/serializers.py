@@ -3,10 +3,63 @@ from rest_framework.serializers import (
     ModelSerializer,
     CurrentUserDefault,
     ValidationError,
+    Serializer,
+    IntegerField,
 )
 from utils.serailizers import RelatedUserSerializer, DynamicFieldsBaseSerializer
+from review.constants import AuthMessages
 
 Review = get_model(app_name="review", model_name="Review")
+User = get_model(app_name="users", model_name="User")
+
+
+class RevieweeReviewerSerializer(Serializer):
+    reviewee = IntegerField(required=True)
+    reviewer = IntegerField(required=True)
+
+    def validate(self, attrs):
+        reviewer = (
+            User.objects.select_related("employee").get(id=attrs["reviewer"]).employee
+        )
+        reviewee = (
+            User.objects.select_related("employee").get(id=attrs["reviewee"]).employee
+        )
+        # Check if ids of reviewer & reviewee are same
+        if reviewer == reviewee:
+            raise ValidationError(
+                {"non_field_errors": [AuthMessages.REVIEWER_REVIEWEE_SAME]}
+            )
+        if reviewer.organization != reviewee.organization:
+            raise ValidationError(
+                {
+                    "non_field_errors": [
+                        AuthMessages.REVIEWER_REVIEWEE_DIFFERENT_ORGANIZATION
+                    ]
+                }
+            )
+        if reviewer.department != reviewee.department:
+            raise ValidationError(
+                {
+                    "non_field_errors": [
+                        AuthMessages.REVIEWER_REVIEWEE_DIFFERENT_DEPARTMENT
+                    ]
+                }
+            )
+        return super().validate(attrs)
+
+    def validate_reviewee(self, value):
+        try:
+            User.objects.get(id=value)
+            return value
+        except User.DoesNotExist:
+            raise ValidationError(AuthMessages.REVIEWEE_NOT_FOUND)
+
+    def validate_reviewer(self, value):
+        try:
+            User.objects.get(id=value)
+            return value
+        except User.DoesNotExist:
+            raise ValidationError(AuthMessages.REVIEWER_NOT_FOUND)
 
 
 class ReviewSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
@@ -39,49 +92,14 @@ class ReviewSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         )
 
     def create(self, validated_data):
-        # TODO : Ask for Better Approch
-        # Check if reviewer and reviewee are the same
-        if validated_data["reviewer"] == validated_data["reviewee"]:
-            raise ValidationError(
-                {"non_field_errors": ["Reviewer and reviewee cannot be the same."]}
-            )
-        # Check if reviewer and reviewee are in same organization
-        if (
-            validated_data["reviewer"].employee.organization
-            != validated_data["reviewee"].employee.organization
-        ):
-            raise ValidationError(
-                {
-                    "non_field_errors": [
-                        "Reviewer and reviewee must be in the same organization."
-                    ]
-                }
-            )
-        # Check if reviewer and reviewee are in the same department
-        if (
-            validated_data["reviewer"].employee.department
-            != validated_data["reviewee"].employee.department
-        ):
-            raise ValidationError(
-                {
-                    "non_field_errors": [
-                        "Reviewer and reviewee must be in the same department."
-                    ]
-                }
-            )
+        serializer = RevieweeReviewerSerializer(
+            data={
+                "reviewer": self.context["request"].user.id,
+                "reviewee": self.initial_data["reviewee"],
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        validated_data["reviewee"] = User.objects.get(
+            id=serializer.validated_data["reviewee"]
+        )
         return super().create(validated_data)
-
-    def validate_performance_rating(self, value):
-        if value < 1 or value > 5:
-            raise ValidationError("Performance Rating must be between 1 and 5.")
-        return value
-
-    def validate_delivery_rating(self, value):
-        if value < 1 or value > 5:
-            raise ValidationError("Delivery Rating must be between 1 and 5.")
-        return value
-
-    def validate_socialization_rating(self, value):
-        if value < 1 or value > 5:
-            raise ValidationError("Socialization Rating must be between 1 and 5.")
-        return value

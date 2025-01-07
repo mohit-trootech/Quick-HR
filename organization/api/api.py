@@ -23,6 +23,8 @@ class OrganizationView(ModelViewSet):
 
 
 class CustomizationView(generics.UpdateAPIView):
+    """Customization Update Api View"""
+
     serializer_class = CustomizationSerializer
     queryset = Customization.objects.all()
 
@@ -31,6 +33,8 @@ customization_view = CustomizationView.as_view()
 
 
 class OrganizationUsersView(generics.ListCreateAPIView):
+    """Organization Users List Create Api View"""
+
     serializer_class = OrganizationUsersSerializer
     search_fields = ("username",)
     filter_fields = ("username",)
@@ -46,6 +50,8 @@ organization_users_view = OrganizationUsersView.as_view()
 
 
 class DepartmentView(generics.ListCreateAPIView, GenericViewSet):
+    """Department List Create Api View"""
+
     serializer_class = DepartmentSerializer
     queryset = Department.objects.all()
     pagination_class = None

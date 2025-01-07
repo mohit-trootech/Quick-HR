@@ -1,5 +1,10 @@
 from utils.utils import get_model
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework.serializers import (
+    ModelSerializer,
+    SerializerMethodField,
+    Serializer,
+    IntegerField,
+)
 from utils.serailizers import (
     DynamicFieldsBaseSerializer,
     RelatedUserSerializer,
@@ -9,12 +14,33 @@ from utils.serailizers import (
 from django.db.utils import IntegrityError
 from rest_framework.exceptions import ValidationError
 from django.utils.timezone import now
-from project.constants import Choices
+from project.constants import Choices, AuthMessage
 from technology.api.serializers import TechnologySerializer
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
 Activity = get_model(app_name="project", model_name="Activity")
+
+
+class ProjectTaskSerializer(Serializer):
+    """Project Task Serializer for Validation"""
+
+    project = IntegerField(required=True)
+    task = IntegerField(required=True)
+
+    def validate_project(self, value):
+        try:
+            Project.objects.get(id=value)
+            return value
+        except Project.DoesNotExist:
+            raise ValidationError({"project": AuthMessage.PROJECT_NOT_EXISTS})
+
+    def validate_task(self, value):
+        try:
+            Task.objects.get(id=value)
+            return value
+        except Task.DoesNotExist:
+            raise ValidationError({"task": AuthMessage.TASK_NOT_EXISTS})
 
 
 class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
@@ -48,7 +74,7 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         try:
             return super().create(validated_data)
         except IntegrityError:
-            raise ValidationError({"detail": "Project already exists"})
+            raise ValidationError({"project": AuthMessage.PROJECT_EXISTS})
 
 
 class TaskSerializer(RelatedTaskSerializer, DynamicFieldsBaseSerializer):
@@ -70,11 +96,11 @@ class TaskSerializer(RelatedTaskSerializer, DynamicFieldsBaseSerializer):
     def create(self, validated_data):
         try:
             if "project" not in self.initial_data:
-                raise ValidationError({"detail": "Project is required"})
+                raise ValidationError({"project": AuthMessage.PROJECT_IS_REQUIRED})
             validated_data["project_id"] = self.initial_data["project"]
             return super().create(validated_data)
         except IntegrityError:
-            raise ValidationError({"detail": "Task already exists"})
+            raise ValidationError({"detail": AuthMessage.TASK_EXISTS})
 
 
 class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
@@ -112,11 +138,13 @@ class ActivitySerializer(DynamicFieldsBaseSerializer, ModelSerializer):
     def create(self, validated_data):
         try:
             validated_data["user"] = self.context["request"].user
-            validated_data["project_id"] = self.initial_data["project"]
-            validated_data["task_id"] = self.initial_data["task"]
+            serializer = ProjectTaskSerializer(data=self.initial_data)
+            serializer.is_valid(raise_exception=True)
+            validated_data["project_id"] = serializer.validated_data["project"]
+            validated_data["task_id"] = serializer.validated_data["task"]
             return super().create(validated_data)
         except IntegrityError:
-            raise ValidationError({"detail": "Activity already exists"})
+            raise ValidationError({"detail": AuthMessage.ACTIVITY_EXISTS})
 
     def update(self, instance, validated_data):
         instance.duration = self.initial_data.get("duration", instance.duration)

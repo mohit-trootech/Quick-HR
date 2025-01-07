@@ -13,7 +13,6 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/", include("resignation.urls", namespace="resignation")),
     path("api/", include("organization.urls", namespace="organization")),
-    path("api/attendence/", include("attendence.urls", namespace="attendence")),
     path("api/devices/", include("device.urls", namespace="device")),
     path("api/leaves/", include("leave.urls", namespace="leave")),
     path("api/overtime/", include("overtime.urls", namespace="overtime")),

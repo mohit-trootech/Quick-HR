@@ -1,16 +1,17 @@
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModelMixin
 from review.api.serializers import ReviewSerializer
 from utils.utils import get_model
-from rest_framework.response import Response
-from rest_framework import status
 from django.db import IntegrityError
+from rest_framework.response import Response
 from utils.permissions import DepartmentManager
 from django.db.models import Q
 from rest_framework.decorators import action
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
 from review.filters import ReviewFilter
+from review.constants import AuthMessages
 
 Review = get_model(app_name="review", model_name="Review")
 User = get_model(app_name="users", model_name="User")
@@ -44,23 +45,12 @@ class ReviewViewSet(
 
     def create(self, request, *args, **kwargs):
         try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.validated_data["reviewee"] = User.objects.get(
-                id=request.data.get("reviewee")
-            )
-            try:
-                self.perform_create(serializer)
-            except IntegrityError:
-                pass
-        except User.DoesNotExist:
+            return super().create(request, *args, **kwargs)
+        except IntegrityError:
             return Response(
-                {"reviewee": "User does not exist"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": AuthMessages.REVIEW_ALREADY_EXISTS},
+                status=HTTP_400_BAD_REQUEST,
             )
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
 
     @action(detail=False, methods=["get"])
     def recent_reviews(self, request, *args, **kwargs):

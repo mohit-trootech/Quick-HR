@@ -39,7 +39,6 @@ class Review(TimeStampedModel, ActivatorModel):
     class Meta:
         verbose_name = VerboseNames.REVIEW
         verbose_name_plural = VerboseNames.REVIEW_PLURAL
-        # Revieww & Created Month and year should be unique
         unique_together = (("reviewee", "created"),)
 
     @property

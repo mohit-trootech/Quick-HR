@@ -3,8 +3,11 @@ from utils.serailizers import DynamicFieldsBaseSerializer, RelatedUserSerializer
 from rest_framework.serializers import (
     ModelSerializer,
     ValidationError,
+    Serializer,
+    DateField,
+    CharField,
 )
-from leave.constants import Choices
+from leave.constants import Choices, AuthMessages
 
 
 Leave = get_model(app_name="leave", model_name="Leave")
@@ -23,6 +26,28 @@ class AvailableLeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
             "encashment_leaves",
             "pending_leaves",
         ]
+
+
+class LeaveDateValidationSerializer(Serializer):
+    """Leave date validation serializer handles the validations of dates and duration"""
+
+    start_date = DateField(required=True)
+    end_date = DateField(required=True)
+    duration = CharField(max_length=50, required=True)
+
+    def validate(self, attrs):
+        if attrs["start_date"] > attrs["end_date"]:
+            raise ValidationError(
+                {"end_date": [AuthMessages.END_DATE_GREATER_THAN_START_DATE]}
+            )
+        if (
+            attrs["duration"] != Choices.FULL_DAY
+            and attrs["start_date"] != attrs["end_date"]
+        ):
+            raise ValidationError(
+                {"non_field_errors": [AuthMessages.HALF_DAY_LEAVE_ERROR]}
+            )
+        return super().validate(attrs)
 
 
 class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
@@ -48,24 +73,8 @@ class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         depth = True
 
     def validate(self, attrs):
-        """Validate Leave Serializer Data"""
-        # Check Whether start_date < end_date
-        if attrs["start_date"] > attrs["end_date"]:
-            raise ValidationError(
-                {"end_date": ["End date must be greater than or equal to start date."]}
-            )
-        # If Leave Type != Choices.FULL_DAY Then start_day = end_day
-        if (
-            attrs["duration"] != Choices.FULL_DAY
-            and attrs["start_date"] != attrs["end_date"]
-        ):
-            raise ValidationError(
-                {
-                    "non_field_errors": [
-                        "For half day leave, start date and end date must be same."
-                    ]
-                }
-            )
+        serializer = LeaveDateValidationSerializer(**attrs)
+        serializer.is_valid(raise_exception=True)
         return super().validate(attrs)
 
     def create(self, validated_data):

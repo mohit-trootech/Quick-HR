@@ -3,6 +3,19 @@
 from django.utils.translation import gettext_noop as _
 
 
+class AuthMessage:
+    """App: Project Auth Messages"""
+
+    PROJECT_EXISTS = _("Project already exists.")
+    TASK_EXISTS = _("Task already exists")
+    PROJECT_IS_REQUIRED = _("Project is required field")
+    PROJECT_NOT_EXISTS = _("Project does not exists")
+    MULTIPLE_PROJECTS_FOUND = _("Multiple projects found")
+    TASK_NOT_EXISTS = _("Task does not exists")
+    MULTIPLE_TASKS_FOUND = _("Multiple tasks found")
+    ACTIVITY_EXISTS = _("Activity already exists")
+
+
 class VerboseNames:
     """App: Model Verbose Names"""
 

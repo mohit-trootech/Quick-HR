@@ -7,6 +7,7 @@ from utils.serailizers import RelatedUserSerializer
 from utils.serailizers import DynamicFieldsBaseSerializer
 from utils.utils import get_model
 from rest_framework import serializers
+from organization.constants import AuthMessages
 
 Organization = get_model(app_name="organization", model_name="Organization")
 Customization = get_model(app_name="organization", model_name="Customization")
@@ -38,10 +39,8 @@ class CustomizationSerializer(ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        # If field not in validated_data make it False
         for field in self.fields:
             if field not in validated_data and field != "id":
-                # check whether field should not be in validated_data & field should not be id
                 validated_data[field] = False
         return super().update(instance, validated_data)
 
@@ -57,9 +56,7 @@ class OrganizationSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     def validate_admin(self, value):
         if not value.organization_head:
-            raise serializers.ValidationError(
-                "Only Organization Head can create Organization"
-            )
+            raise serializers.ValidationError(AuthMessages.NOT_ORGANIZATION_HEAD)
         return value
 
     def get_count(self, obj):

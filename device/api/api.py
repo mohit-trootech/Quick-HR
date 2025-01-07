@@ -14,6 +14,9 @@ class DeviceViewset(ModelViewSet):
     search_fields = ("title", "description")
 
     def filter_queryset(self, queryset):
+        """
+        Filter device queryset on the basic of users's organization
+        """
         return (
             super()
             .filter_queryset(queryset)
@@ -24,9 +27,8 @@ class DeviceViewset(ModelViewSet):
 
     @action(detail=False, methods=["GET"])
     def my_devices(self, request):
-        """Devices Acquired by Logged in User"""
-        queryset = self.queryset.filter(
-            organization=self.request.user.employee.organization,
+        """Devices acquired by logged in User"""
+        queryset = self.filter_queryset(queryset=self.queryset).filter(
             acquired_by=request.user,
         )
         serializer = self.get_serializer(queryset, many=True)
