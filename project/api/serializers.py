@@ -4,6 +4,7 @@ from rest_framework.serializers import (
     SerializerMethodField,
     Serializer,
     IntegerField,
+    CharField,
 )
 from utils.serailizers import (
     DynamicFieldsBaseSerializer,
@@ -20,6 +21,24 @@ from technology.api.serializers import TechnologySerializer
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
 Activity = get_model(app_name="project", model_name="Activity")
+
+
+class AssignedUserSerializer(Serializer):
+    assigned_users = CharField(required=True)
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
+    def update(self, instance, validated_data):
+        print([id for id in validated_data["assigned_users"].split(",")])
+        instance.assigned_users.set(
+            [
+                id
+                for id in validated_data["assigned_users"].split(",")
+                if id not in [",", ""]
+            ]
+        )
+        return instance
 
 
 class ProjectTaskSerializer(Serializer):
@@ -44,8 +63,8 @@ class ProjectTaskSerializer(Serializer):
 
 
 class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
-    project_manager = RelatedUserSerializer()
-    team_lead = RelatedUserSerializer()
+    project_manager = RelatedUserSerializer(read_only=True)
+    team_lead = RelatedUserSerializer(read_only=True)
     assigned_users = RelatedUserSerializer(many=True, read_only=True)
     technologies = TechnologySerializer(many=True, read_only=True)
     tasks = RelatedTaskSerializer(many=True, read_only=True)
@@ -72,7 +91,17 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     def create(self, validated_data):
         try:
-            return super().create(validated_data)
+            validated_data["project_manager_id"] = self.initial_data[
+                "project_manager_id"
+            ]
+            validated_data["team_lead_id"] = self.initial_data["team_lead_id"]
+            instance = super().create(validated_data)
+            serializer = AssignedUserSerializer(
+                instance=instance, data=self.initial_data, context=self.context
+            )
+            serializer.is_valid(raise_exception=True)
+            return serializer.save()
+
         except IntegrityError:
             raise ValidationError({"project": AuthMessage.PROJECT_EXISTS})
 

@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from django.utils.timezone import now
 from rest_framework.status import HTTP_200_OK
 from rest_framework.pagination import PageNumberPagination
+from users.constants import Choices as user_choices
+from django.db.models import Q
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
@@ -21,29 +23,24 @@ Activity = get_model(app_name="project", model_name="Activity")
 class ProjectViewSet(ModelViewSet):
     queryset = Project.objects.filter(status=ActivatorModel.ACTIVE_STATUS)
     serializer_class = ProjectSerializer
-    filterset_fields = ["status"]
+    filterset_fields = ["status", "project"]
     search_fields = ["title", "description"]
     pagination_class = PageNumberPagination
 
-    def create(self, request, *args, **kwargs):
-        breakpoint()
-        return super().create(request, *args, **kwargs)
-
     @action(detail=False, methods=["get"])
     def list_users_assigned_projects(self, request, *args, **kwargs):
-        filtered_queryset = (
-            self.filter_queryset(self.get_queryset())
-            .filter(assigned_users__id=self.request.user.id)
-            .distinct()
-        )
+        query = Q()
+        if request.user.employee.designation != user_choices.MANAGER:
+            query = query | Q(assigned_users__id=self.request.user.id)
+        queryset = self.filter_queryset(self.get_queryset()).filter(query).distinct()
         paginator = self.pagination_class()
-        page = paginator.paginate_queryset(filtered_queryset, request)
+        page = paginator.paginate_queryset(queryset, request)
 
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return paginator.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(filtered_queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
 
@@ -55,7 +52,7 @@ class TaskViewSet(ModelViewSet):
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        if self.request.query_params.get("project"):
+        if "project" in self.request.query_params:
             return queryset.filter(project__id=self.request.query_params.get("project"))
         return queryset
 
@@ -63,9 +60,18 @@ class TaskViewSet(ModelViewSet):
 class ActivityViewSet(ModelViewSet):
     queryset = Activity.objects.filter(created__year=now().year)
     serializer_class = ActivitySerializer
-    filterset_fields = ["activity_type", "task", "user", "project"]
+    filterset_fields = ["activity_type", "task", "user", "project__id"]
+    pagination_class = None
     search_fields = ["activity_type"]
     ordering = ["-created"]
+
+    def filter_queryset(self, queryset):
+        query = Q()
+        if "project" in self.request.query_params:
+            query = query | Q(project__id=self.request.query_params.get("project"))
+        if "task" in self.request.query_params:
+            return queryset.filter(task__id=self.request.query_params.get("task"))
+        return super().filter_queryset(queryset).filter(query)
 
     @action(detail=False, methods=["get"])
     def last_user_activity(self, request, *args, **kwargs):

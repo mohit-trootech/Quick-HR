@@ -73,7 +73,13 @@ class LeaveSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
         depth = True
 
     def validate(self, attrs):
-        serializer = LeaveDateValidationSerializer(**attrs)
+        serializer = LeaveDateValidationSerializer(
+            data={
+                "start_date": attrs["start_date"],
+                "end_date": attrs["end_date"],
+                "duration": attrs["duration"],
+            }
+        )
         serializer.is_valid(raise_exception=True)
         return super().validate(attrs)
 
