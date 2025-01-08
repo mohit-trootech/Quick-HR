@@ -17,10 +17,12 @@ from rest_framework.exceptions import ValidationError
 from django.utils.timezone import now
 from project.constants import Choices, AuthMessage
 from technology.api.serializers import TechnologySerializer
+from django.db import transaction
 
 Project = get_model(app_name="project", model_name="Project")
 Task = get_model(app_name="project", model_name="Task")
 Activity = get_model(app_name="project", model_name="Activity")
+User = get_model(app_name="users", model_name="User")
 
 
 class AssignedUserSerializer(Serializer):
@@ -38,7 +40,27 @@ class AssignedUserSerializer(Serializer):
                 if id not in [",", ""]
             ]
         )
+        instance.save()
         return instance
+
+
+class ProjectManagerTeamLeadSerializer(Serializer):
+    project_manager_id = IntegerField(required=True)
+    team_lead_id = IntegerField(required=True)
+
+    def validate_project_manager(self, value):
+        try:
+            User.objects.get(id=value)
+            return value
+        except User.DoesNotExist:
+            raise ValidationError({"project_manager": AuthMessage.USER_NOT_EXISTS})
+
+    def validate_team_lead(self, value):
+        try:
+            User.objects.get(id=value)
+            return value
+        except User.DoesNotExist:
+            raise ValidationError({"team_lead": AuthMessage.USER_NOT_EXISTS})
 
 
 class ProjectTaskSerializer(Serializer):
@@ -91,19 +113,32 @@ class ProjectSerializer(DynamicFieldsBaseSerializer, ModelSerializer):
 
     def create(self, validated_data):
         try:
-            validated_data["project_manager_id"] = self.initial_data[
-                "project_manager_id"
-            ]
-            validated_data["team_lead_id"] = self.initial_data["team_lead_id"]
-            instance = super().create(validated_data)
-            serializer = AssignedUserSerializer(
-                instance=instance, data=self.initial_data, context=self.context
-            )
-            serializer.is_valid(raise_exception=True)
-            return serializer.save()
-
+            with transaction.atomic():
+                assigned_users = self.initial_data.get("assigned_users", None)
+                if not assigned_users:
+                    ValidationError(
+                        {"assigned_users": AuthMessage.ASSIGNED_USERS_IS_REQUIRED}
+                    )
+                serializer_data = ProjectManagerTeamLeadSerializer(
+                    data=self.initial_data
+                )
+                serializer_data.is_valid(raise_exception=True)
+                validated_data["project_manager_id"] = serializer_data.validated_data[
+                    "project_manager_id"
+                ]
+                validated_data["team_lead_id"] = serializer_data.validated_data[
+                    "team_lead_id"
+                ]
+                instance = super().create(validated_data)
+                instance.assigned_users.set(
+                    [id for id in assigned_users.split(",") if id not in [",", ""]]
+                )
+                instance.save()
+                return instance
+        except ValidationError as err:
+            raise ValidationError({"detail": str(err)})
         except IntegrityError:
-            raise ValidationError({"project": AuthMessage.PROJECT_EXISTS})
+            raise ValidationError({"detail": AuthMessage.PROJECT_EXISTS})
 
 
 class TaskSerializer(RelatedTaskSerializer, DynamicFieldsBaseSerializer):
